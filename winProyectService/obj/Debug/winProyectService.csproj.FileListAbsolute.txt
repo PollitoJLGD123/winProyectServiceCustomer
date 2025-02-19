@@ -1,0 +1,11 @@
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\bin\Debug\winProyectService.exe.config
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\bin\Debug\winProyectService.exe
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\bin\Debug\winProyectService.pdb
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.csproj.AssemblyReference.cache
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.Form1.resources
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.Properties.Resources.resources
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.csproj.GenerateResource.cache
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.csproj.CoreCompileInputs.cache
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.exe
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.pdb
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.frmCliente.resources
