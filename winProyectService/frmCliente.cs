@@ -16,8 +16,6 @@ namespace winProyectService
     public partial class frmCliente: Form
     {
 
-        byte[] bufferDatos = new byte[1024];
-
         IPHostEntry ipInfoHost;
         IPAddress ipDireccion;
         IPEndPoint PuntoRemoto;
@@ -30,11 +28,6 @@ namespace winProyectService
         private Dictionary<string, string> clientes_conectados = new Dictionary<string, string>();
 
         public frmCliente()
-        {
-            InitializeComponent();
-        }
-
-        public frmCliente(string nombre)
         {
             InitializeComponent();
         }
@@ -117,9 +110,20 @@ namespace winProyectService
                     
                 }
             }
+            catch (SocketException ex)
+            {
+                if (ex.SocketErrorCode != SocketError.Interrupted)
+                {
+                    MessageBox.Show($"Error en la comunicación con el servidor: {ex.Message}");
+                }
+                else
+                {
+                    Console.WriteLine("aca es el error");
+                }
+            }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show($"Error inesperado: {ex.Message}");
             }
         }
 
@@ -188,12 +192,6 @@ namespace winProyectService
             lblLenght.Text = string.Format("{0:00}", lenghtText);
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            DisconnectFromServer();
-            base.OnFormClosing(e);
-        }
-
         private void DisconnectFromServer()
         {
             if (SocketCliente != null && SocketCliente.Connected)
@@ -205,9 +203,20 @@ namespace winProyectService
             {
                 hiloRecibir.Join();
             }
-            UpdateUI("Desconectado del servidor");
             clientes_conectados.Clear();
             UpdateClientList();
+        }
+
+        private void frmCliente_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                DisconnectFromServer();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(this,ex.Message);
+            }
         }
     }
 }

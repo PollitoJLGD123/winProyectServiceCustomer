@@ -100,7 +100,7 @@ namespace winProyectService
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(this, ex.Message);
             }
         }
 
@@ -140,7 +140,7 @@ namespace winProyectService
                 try
                 {
 
-                    Socket socketHijo = SocketEscucha.Accept(); //
+                    Socket socketHijo = SocketEscucha.Accept();
 
                     Console.WriteLine("Cliente conectado" + socketHijo.ToString());
 
@@ -152,6 +152,9 @@ namespace winProyectService
                 }
                 catch (SocketException)
                 {
+
+                    Console.WriteLine("Bota error acA 222222222222222");
+
                     // El servidor se ha detenido
                     break;
                 }
@@ -169,10 +172,7 @@ namespace winProyectService
 
             if (!listaClientes.IsEmpty)
             {
-                foreach (var client in listaClientes.Values) // que lo haga automatica sin necesidad de
-                {
-                    enviarClientes(client);
-                }
+                reenviarClientes();
             }
 
             byte[] buffer = new byte[1024];
@@ -181,7 +181,7 @@ namespace winProyectService
 
                 while (true)
                 {
-                    int bytesRead = cliente_socket.Receive(buffer);
+                    int bytesRead = cliente_socket.Receive(buffer); // solo devuelve cuando se desconecta el cliente
 
                     Console.WriteLine("bytesRead: " + bytesRead);
 
@@ -195,6 +195,19 @@ namespace winProyectService
             catch (Exception ex)
             {
                 UpdateUI($"Error en la comunicación con el cliente: {ex.Message}");
+                MessageBox.Show(this, ex.Message);
+                Console.WriteLine("BOta error acA 111111111");
+            }
+            finally
+            {
+                listaClientes.TryRemove(clientId, out _);
+                
+                cliente_socket.Close();
+
+                Console.WriteLine(listaClientes.Count());
+                Console.WriteLine("Se elimino al cliente");
+
+                reenviarClientes();
             }
         }
 
@@ -261,8 +274,18 @@ namespace winProyectService
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(this, ex.Message);
             }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
