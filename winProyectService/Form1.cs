@@ -95,6 +95,7 @@ namespace winProyectService
                 btnIniciar.Text = "Detener Servidor";
                 txtPuerto.Text = puerto.ToString();
 
+
                 hiloEscuchar = new Thread(new ThreadStart(Escuchar));
                 hiloEscuchar.Start();
             }
@@ -153,8 +154,6 @@ namespace winProyectService
                 catch (SocketException)
                 {
 
-                    Console.WriteLine("Bota error acA 222222222222222");
-
                     // El servidor se ha detenido
                     break;
                 }
@@ -166,14 +165,13 @@ namespace winProyectService
         {
             Socket cliente_socket = (Socket)socketHijo;
 
-            string clientId = Guid.NewGuid().ToString();
+            string clientId = Guid.NewGuid().ToString().Substring(0,4);
+
+            enviarID(clientId, cliente_socket);
 
             listaClientes.TryAdd(clientId, cliente_socket);
 
-            if (!listaClientes.IsEmpty)
-            {
-                reenviarClientes();
-            }
+            reenviarClientes(true, Color.Green);
 
             byte[] buffer = new byte[1024];
             try
@@ -204,32 +202,34 @@ namespace winProyectService
                 
                 cliente_socket.Close();
 
-                Console.WriteLine(listaClientes.Count());
                 Console.WriteLine("Se elimino al cliente");
-
-                reenviarClientes();
+                reenviarClientes(false, Color.Red);
             }
         }
 
         private void procesarMensaje(string id_envia, string message)
         {
-            string[] parts = message.Split(new[] { ':' }, 2);
-            if (parts.Length == 2)
-            {
-                string id_recibe = parts[0];
-                string message_real = parts[1];
+            string id_recibe = message.Substring(0, 4);
 
-                if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
-                {
-                    string mensaje_total = $"{id_envia}:{message_real}";
-                    byte[] msgBuffer = Encoding.UTF8.GetBytes(mensaje_total);
-                    socket_recibe.Send(msgBuffer);
-                }
-                else
-                {
-                    UpdateUI($"El cliente {id_recibe} no está conectado");
-                }
+            if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
+            {
+                string tipo = message.Substring(5);
+                string mensaje_total = $"{id_envia}:{tipo}";
+                byte[] msgBuffer = Encoding.UTF8.GetBytes(mensaje_total);
+                socket_recibe.Send(msgBuffer);
             }
+            else
+            {
+                UpdateUI($"El cliente {id_recibe} no está conectado");
+            }
+
+            
+        }
+
+        private void enviarID(string id, Socket cliente_socket)
+        {
+            byte[] idBuffer = Encoding.UTF8.GetBytes("ID:" + id);
+            cliente_socket.Send(idBuffer);
         }
 
         private void enviarClientes(Socket cliente_socket)
@@ -239,11 +239,42 @@ namespace winProyectService
             cliente_socket.Send(listBuffer);
         }
 
-        private void reenviarClientes()
+        private void reenviarClientes(bool estado, Color color)
         {
-            foreach (var client in listaClientes.Values)
+            int i = 1;
+            foreach (var kvp in listaClientes)
             {
+                string idCliente = kvp.Key;
+                var client = kvp.Value;
+
                 enviarClientes(client);
+                UpdateChecker(i, true, idCliente, Color.Green);
+                i++;
+            }
+
+            for (int j = i; j <= 5; j++)
+            {
+                UpdateChecker(j, false, "", Color.Red);
+            }
+        }
+        private void UpdateChecker(int number, bool prendido, string name, Color color)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<int, bool, string, Color>(UpdateChecker), number, prendido, name, color);
+                return;
+            }
+
+            CheckBox[] checkBoxes = { checkConectado1, checkConectado2, checkConectado3, checkConectado4, checkConectado5 };
+            Label[] labels = { lblNombre1, lblNombre2, lblNombre3, lblNombre4, lblNombre5 };
+
+            if (number >= 1 && number <= checkBoxes.Length)
+            {
+                checkBoxes[number - 1].Checked = prendido;
+                checkBoxes[number - 1].ForeColor = color;
+
+                checkBoxes[number - 1].Text = prendido == true ? "Connect ✓ ✖" : "Disconnect ✓ ✖";
+                labels[number - 1].Text = $"Name: {name}";
             }
         }
 

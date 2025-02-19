@@ -29,15 +29,7 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
-            this.checkBox6 = new System.Windows.Forms.CheckBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.checkBox5 = new System.Windows.Forms.CheckBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkConectado1 = new System.Windows.Forms.CheckBox();
             this.label9 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.txtDireccion = new System.Windows.Forms.TextBox();
@@ -57,22 +49,40 @@
             this.comboDirecciones = new System.Windows.Forms.ComboBox();
             this.comboPuertos = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.lblNombre1 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.lblNombre2 = new System.Windows.Forms.Label();
+            this.checkConectado2 = new System.Windows.Forms.CheckBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.lblNombre3 = new System.Windows.Forms.Label();
+            this.checkConectado3 = new System.Windows.Forms.CheckBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.lblNombre4 = new System.Windows.Forms.Label();
+            this.checkConectado4 = new System.Windows.Forms.CheckBox();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.lblNombre5 = new System.Windows.Forms.Label();
+            this.checkConectado5 = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.checkBox6);
-            this.panel1.Controls.Add(this.label12);
-            this.panel1.Controls.Add(this.checkBox5);
-            this.panel1.Controls.Add(this.label13);
-            this.panel1.Controls.Add(this.checkBox4);
-            this.panel1.Controls.Add(this.label7);
-            this.panel1.Controls.Add(this.checkBox3);
-            this.panel1.Controls.Add(this.label8);
-            this.panel1.Controls.Add(this.checkBox1);
-            this.panel1.Controls.Add(this.label9);
+            this.panel1.Controls.Add(this.groupBox6);
+            this.panel1.Controls.Add(this.groupBox5);
+            this.panel1.Controls.Add(this.groupBox4);
+            this.panel1.Controls.Add(this.groupBox3);
+            this.panel1.Controls.Add(this.groupBox2);
             this.panel1.Controls.Add(this.groupBox1);
             this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.label2);
@@ -88,116 +98,24 @@
             this.panel1.Size = new System.Drawing.Size(1035, 652);
             this.panel1.TabIndex = 0;
             // 
-            // checkBox6
+            // checkConectado1
             // 
-            this.checkBox6.AutoCheck = false;
-            this.checkBox6.AutoSize = true;
-            this.checkBox6.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.checkBox6.Location = new System.Drawing.Point(603, 440);
-            this.checkBox6.Name = "checkBox6";
-            this.checkBox6.Size = new System.Drawing.Size(157, 21);
-            this.checkBox6.TabIndex = 54;
-            this.checkBox6.Text = "Conectado ✓ ✖";
-            this.checkBox6.UseVisualStyleBackColor = true;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(599, 360);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(95, 24);
-            this.label12.TabIndex = 53;
-            this.label12.Text = "Cliente 5:";
-            // 
-            // checkBox5
-            // 
-            this.checkBox5.AutoCheck = false;
-            this.checkBox5.AutoSize = true;
-            this.checkBox5.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.checkBox5.Location = new System.Drawing.Point(603, 297);
-            this.checkBox5.Name = "checkBox5";
-            this.checkBox5.Size = new System.Drawing.Size(157, 21);
-            this.checkBox5.TabIndex = 52;
-            this.checkBox5.Text = "Conectado ✓ ✖";
-            this.checkBox5.UseVisualStyleBackColor = true;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(599, 238);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(95, 24);
-            this.label13.TabIndex = 51;
-            this.label13.Text = "Cliente 4:";
-            // 
-            // checkBox4
-            // 
-            this.checkBox4.AutoCheck = false;
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.checkBox4.Location = new System.Drawing.Point(603, 595);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(157, 21);
-            this.checkBox4.TabIndex = 50;
-            this.checkBox4.Text = "Conectado ✓ ✖";
-            this.checkBox4.UseVisualStyleBackColor = true;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(599, 536);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(95, 24);
-            this.label7.TabIndex = 49;
-            this.label7.Text = "Cliente 3:";
-            // 
-            // checkBox3
-            // 
-            this.checkBox3.AutoCheck = false;
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.checkBox3.Location = new System.Drawing.Point(353, 595);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(157, 21);
-            this.checkBox3.TabIndex = 48;
-            this.checkBox3.Text = "Conectado ✓ ✖";
-            this.checkBox3.UseVisualStyleBackColor = true;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(349, 536);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(95, 24);
-            this.label8.TabIndex = 47;
-            this.label8.Text = "Cliente 2:";
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoCheck = false;
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.checkBox1.Location = new System.Drawing.Point(117, 595);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(157, 21);
-            this.checkBox1.TabIndex = 46;
-            this.checkBox1.Text = "Conectado ✓ ✖";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkConectado1.AutoCheck = false;
+            this.checkConectado1.AutoSize = true;
+            this.checkConectado1.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkConectado1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.checkConectado1.Location = new System.Drawing.Point(10, 95);
+            this.checkConectado1.Name = "checkConectado1";
+            this.checkConectado1.Size = new System.Drawing.Size(160, 21);
+            this.checkConectado1.TabIndex = 46;
+            this.checkConectado1.Text = "Disconnect ✓ ✖";
+            this.checkConectado1.UseVisualStyleBackColor = true;
             // 
             // label9
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(113, 536);
+            this.label9.Location = new System.Drawing.Point(6, 18);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(95, 24);
             this.label9.TabIndex = 45;
@@ -302,7 +220,7 @@
             // label6
             // 
             this.label6.Image = global::winProyectService.Properties.Resources.computer1;
-            this.label6.Location = new System.Drawing.Point(811, 297);
+            this.label6.Location = new System.Drawing.Point(811, 306);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(190, 190);
             this.label6.TabIndex = 29;
@@ -320,7 +238,7 @@
             // btnCliente
             // 
             this.btnCliente.Font = new System.Drawing.Font("Cooper Black", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCliente.Location = new System.Drawing.Point(799, 490);
+            this.btnCliente.Location = new System.Drawing.Point(799, 526);
             this.btnCliente.Name = "btnCliente";
             this.btnCliente.Size = new System.Drawing.Size(216, 43);
             this.btnCliente.TabIndex = 27;
@@ -392,6 +310,198 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Server and Customer";
             // 
+            // lblNombre1
+            // 
+            this.lblNombre1.AutoSize = true;
+            this.lblNombre1.Location = new System.Drawing.Point(7, 60);
+            this.lblNombre1.Name = "lblNombre1";
+            this.lblNombre1.Size = new System.Drawing.Size(59, 16);
+            this.lblNombre1.TabIndex = 55;
+            this.lblNombre1.Text = "Nombre:";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.label9);
+            this.groupBox2.Controls.Add(this.lblNombre1);
+            this.groupBox2.Controls.Add(this.checkConectado1);
+            this.groupBox2.Location = new System.Drawing.Point(79, 508);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(201, 134);
+            this.groupBox2.TabIndex = 56;
+            this.groupBox2.TabStop = false;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.label7);
+            this.groupBox3.Controls.Add(this.lblNombre2);
+            this.groupBox3.Controls.Add(this.checkConectado2);
+            this.groupBox3.Location = new System.Drawing.Point(321, 508);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(201, 134);
+            this.groupBox3.TabIndex = 57;
+            this.groupBox3.TabStop = false;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(6, 18);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(95, 24);
+            this.label7.TabIndex = 45;
+            this.label7.Text = "Cliente 2:";
+            // 
+            // lblNombre2
+            // 
+            this.lblNombre2.AutoSize = true;
+            this.lblNombre2.Location = new System.Drawing.Point(7, 60);
+            this.lblNombre2.Name = "lblNombre2";
+            this.lblNombre2.Size = new System.Drawing.Size(59, 16);
+            this.lblNombre2.TabIndex = 55;
+            this.lblNombre2.Text = "Nombre:";
+            // 
+            // checkConectado2
+            // 
+            this.checkConectado2.AutoCheck = false;
+            this.checkConectado2.AutoSize = true;
+            this.checkConectado2.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkConectado2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.checkConectado2.Location = new System.Drawing.Point(10, 95);
+            this.checkConectado2.Name = "checkConectado2";
+            this.checkConectado2.Size = new System.Drawing.Size(160, 21);
+            this.checkConectado2.TabIndex = 46;
+            this.checkConectado2.Text = "Disconnect ✓ ✖";
+            this.checkConectado2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.label12);
+            this.groupBox4.Controls.Add(this.lblNombre3);
+            this.groupBox4.Controls.Add(this.checkConectado3);
+            this.groupBox4.Location = new System.Drawing.Point(581, 508);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(201, 134);
+            this.groupBox4.TabIndex = 58;
+            this.groupBox4.TabStop = false;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(6, 18);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(95, 24);
+            this.label12.TabIndex = 45;
+            this.label12.Text = "Cliente 3:";
+            // 
+            // lblNombre3
+            // 
+            this.lblNombre3.AutoSize = true;
+            this.lblNombre3.Location = new System.Drawing.Point(7, 60);
+            this.lblNombre3.Name = "lblNombre3";
+            this.lblNombre3.Size = new System.Drawing.Size(59, 16);
+            this.lblNombre3.TabIndex = 55;
+            this.lblNombre3.Text = "Nombre:";
+            // 
+            // checkConectado3
+            // 
+            this.checkConectado3.AutoCheck = false;
+            this.checkConectado3.AutoSize = true;
+            this.checkConectado3.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkConectado3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.checkConectado3.Location = new System.Drawing.Point(10, 95);
+            this.checkConectado3.Name = "checkConectado3";
+            this.checkConectado3.Size = new System.Drawing.Size(160, 21);
+            this.checkConectado3.TabIndex = 46;
+            this.checkConectado3.Text = "Disconnect ✓ ✖";
+            this.checkConectado3.UseVisualStyleBackColor = true;
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.label14);
+            this.groupBox5.Controls.Add(this.lblNombre4);
+            this.groupBox5.Controls.Add(this.checkConectado4);
+            this.groupBox5.Location = new System.Drawing.Point(581, 353);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(201, 134);
+            this.groupBox5.TabIndex = 59;
+            this.groupBox5.TabStop = false;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(6, 18);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(95, 24);
+            this.label14.TabIndex = 45;
+            this.label14.Text = "Cliente 4:";
+            // 
+            // lblNombre4
+            // 
+            this.lblNombre4.AutoSize = true;
+            this.lblNombre4.Location = new System.Drawing.Point(7, 60);
+            this.lblNombre4.Name = "lblNombre4";
+            this.lblNombre4.Size = new System.Drawing.Size(59, 16);
+            this.lblNombre4.TabIndex = 55;
+            this.lblNombre4.Text = "Nombre:";
+            // 
+            // checkConectado4
+            // 
+            this.checkConectado4.AutoCheck = false;
+            this.checkConectado4.AutoSize = true;
+            this.checkConectado4.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkConectado4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.checkConectado4.Location = new System.Drawing.Point(10, 95);
+            this.checkConectado4.Name = "checkConectado4";
+            this.checkConectado4.Size = new System.Drawing.Size(160, 21);
+            this.checkConectado4.TabIndex = 46;
+            this.checkConectado4.Text = "Disconnect ✓ ✖";
+            this.checkConectado4.UseVisualStyleBackColor = true;
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.label16);
+            this.groupBox6.Controls.Add(this.lblNombre5);
+            this.groupBox6.Controls.Add(this.checkConectado5);
+            this.groupBox6.Location = new System.Drawing.Point(581, 211);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(201, 134);
+            this.groupBox6.TabIndex = 60;
+            this.groupBox6.TabStop = false;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Bell MT", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.Location = new System.Drawing.Point(6, 18);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(95, 24);
+            this.label16.TabIndex = 45;
+            this.label16.Text = "Cliente 5:";
+            // 
+            // lblNombre5
+            // 
+            this.lblNombre5.AutoSize = true;
+            this.lblNombre5.Location = new System.Drawing.Point(7, 60);
+            this.lblNombre5.Name = "lblNombre5";
+            this.lblNombre5.Size = new System.Drawing.Size(59, 16);
+            this.lblNombre5.TabIndex = 55;
+            this.lblNombre5.Text = "Nombre:";
+            // 
+            // checkConectado5
+            // 
+            this.checkConectado5.AutoCheck = false;
+            this.checkConectado5.AutoSize = true;
+            this.checkConectado5.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkConectado5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.checkConectado5.Location = new System.Drawing.Point(10, 95);
+            this.checkConectado5.Name = "checkConectado5";
+            this.checkConectado5.Size = new System.Drawing.Size(160, 21);
+            this.checkConectado5.TabIndex = 46;
+            this.checkConectado5.Text = "Disconnect ✓ ✖";
+            this.checkConectado5.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -407,6 +517,16 @@
             this.panel1.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -432,16 +552,26 @@
         private System.Windows.Forms.CheckBox checkEstado;
         private System.Windows.Forms.Label lblEstado;
         private System.Windows.Forms.ProgressBar barraEstado;
-        private System.Windows.Forms.CheckBox checkBox4;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox checkConectado1;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.CheckBox checkBox6;
+        private System.Windows.Forms.Label lblNombre1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label lblNombre5;
+        private System.Windows.Forms.CheckBox checkConectado5;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label lblNombre4;
+        private System.Windows.Forms.CheckBox checkConectado4;
+        private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.CheckBox checkBox5;
-        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label lblNombre3;
+        private System.Windows.Forms.CheckBox checkConectado3;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lblNombre2;
+        private System.Windows.Forms.CheckBox checkConectado2;
     }
 }
 
