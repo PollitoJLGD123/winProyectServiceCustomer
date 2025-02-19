@@ -187,7 +187,7 @@ namespace winProyectService
 
                                 int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
 
-                                if (bytesRestantes > 1011)
+                                if (bytesRestantes >= 1011)
                                 {
                                     archivoRecibir.EscribiendoArchivo.Write(bytes, 0, 1011);
                                     archivoRecibir.Avance += 1011;
@@ -404,7 +404,11 @@ namespace winProyectService
                     Array.Copy(cabeza, 0, tramaEnviar, 0, 13);
                     Array.Copy(archivo.bytes, i, tramaEnviar, 13, size);
 
-                    SocketCliente.Send(tramaEnviar);
+                    int totalBytes = 0;
+                    while (totalBytes < tramaEnviar.Length)
+                    {
+                        totalBytes += SocketCliente.Send(tramaEnviar, totalBytes, tramaEnviar.Length - totalBytes, SocketFlags.None);
+                    }
 
 
                     if (i == 0)

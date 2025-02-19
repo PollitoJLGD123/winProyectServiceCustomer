@@ -221,9 +221,7 @@ namespace winProyectService
             else
             {
                 UpdateUI($"El cliente {id_recibe} no está conectado");
-            }
-
-            
+            }       
         }
 
         private void enviarID(string id, Socket cliente_socket)
