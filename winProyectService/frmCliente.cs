@@ -35,6 +35,8 @@ namespace winProyectService
 
         classArchivo archivoRecibir;
 
+        classArchivo archivoEnviar;
+
         public frmCliente()
         {
             InitializeComponent();
@@ -147,7 +149,7 @@ namespace winProyectService
                 }
                 else
                 {
-                    string sendId = mensaje.Substring(0,4); // 0aea:
+                    string sendId = mensaje.Substring(0,4); // 
 
                     string tipo = mensaje.Substring(5);
 
@@ -160,13 +162,19 @@ namespace winProyectService
                     {
                         if(tipo.StartsWith("INFO:"))
                         {
-                            //string info_total = $"{recipientId}:INFO:{size_archivo}:{size_nombre}:{nombre}";
+                            //string info_total = $"001J:INFO:0000002222:006:AE.TXT";
 
                             int size_archivo = int.Parse(mensaje.Substring(10, 10));
 
+                            Console.WriteLine("Tamaño archivo" + size_archivo);
+
                             int size_nombre = int.Parse(mensaje.Substring(21, 3));
 
+                            Console.WriteLine("Tamaño nombre" + size_nombre);
+
                             string nombre = mensaje.Substring(25, size_nombre);
+
+                            Console.WriteLine("Nombre" + nombre);
 
                             string ruta_temp = $"E:/Probando/Recibir/{nombre}";
 
@@ -175,19 +183,21 @@ namespace winProyectService
                                 File.Delete(ruta_temp); // Evitamos problemas de sobreescritura 
                             }
 
-                            archivoRecibir = new classArchivo(ruta_temp, new byte[size_archivo], 0, 0);
+                            archivoRecibir = new classArchivo(ruta_temp, new byte[size_archivo], 0);
 
                             archivoRecibir.iniciarFlujo();
                         }
                         else
                         {
+                            // aea1:ARCHIVO:11111111112222222222ddddddd
+                            //aea1:INFO:
                             if (tipo.StartsWith("ARCHIVO:"))
                             {
-                                byte[] bytes = Encoding.UTF8.GetBytes(tipo.Substring(8));
+                                byte[] bytes = Encoding.UTF8.GetBytes(mensaje.Substring(13));
 
                                 int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
 
-                                if (bytesRestantes >= 1011)
+                                if (bytesRestantes > 1011)
                                 {
                                     archivoRecibir.EscribiendoArchivo.Write(bytes, 0, 1011);
                                     archivoRecibir.Avance += 1011;
@@ -350,11 +360,11 @@ namespace winProyectService
                     string rutita = txtRuta.Text.Trim();
                     byte[] bytesImagen = File.ReadAllBytes(rutita);
 
-                    classArchivo archivoEnviar = new classArchivo(rutita, bytesImagen,0,1);
+                    archivoEnviar = new classArchivo(rutita, bytesImagen,0);
 
-                    enviarInformacion(archivoEnviar);
+                    enviarInformacion();
 
-                    enviarArchivo(archivoEnviar);
+                    enviarArchivo();
 
                 }
             }
@@ -364,13 +374,13 @@ namespace winProyectService
             }
         }
 
-        private void enviarInformacion(classArchivo archivo)
+        private void enviarInformacion()
         {
             string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
 
-            string size_archivo = archivo.bytes.Length.ToString("D10");
+            string size_archivo = archivoEnviar.bytes.Length.ToString("D10");
 
-            string nombre = Path.GetFileName(archivo.Nombre);
+            string nombre = Path.GetFileName(archivoEnviar.Nombre);
 
             string size_nombre = nombre.Length.ToString("D3");
 
@@ -381,7 +391,7 @@ namespace winProyectService
             SocketCliente.Send(bufferInfo);
         }
 
-        private void enviarArchivo(classArchivo archivo)
+        private void enviarArchivo()
         {
             try
             {
@@ -389,33 +399,28 @@ namespace winProyectService
 
                 byte[] cabeza = ASCIIEncoding.UTF8.GetBytes($"{recipientId}:ARCHIVO:");
 
-                int tamaño_imagen = archivo.bytes.Length;
+                int tamaño_imagen = archivoEnviar.bytes.Length;
 
                 int cantidad_exacta = 1011 * ((int)(tamaño_imagen / 1011)); //
 
                 for (int i = 0; i < tamaño_imagen; i += 1011) //0, 
                 {
-                    int size = Math.Min(1011, archivo.bytes.Length - i); //
+                    int size = Math.Min(1011, archivoEnviar.bytes.Length - i); //
 
-                    byte[] tramaEnviar = Enumerable.Repeat((byte)'@', 1011).ToArray();//Rellena todo el arreglo con @
+                    byte[] tramaEnviar = new byte[1024];
 
-                    archivo.Avance += size;
+                    archivoEnviar.Avance += size;
 
-                    Array.Copy(cabeza, 0, tramaEnviar, 0, 13);
-                    Array.Copy(archivo.bytes, i, tramaEnviar, 13, size);
+                    Array.Copy(cabeza, 0, tramaEnviar, 0, 13); //aea1:ARCHIVO:
+                    Array.Copy(archivoEnviar.bytes, i, tramaEnviar, 13, size);
 
-                    int totalBytes = 0;
-                    while (totalBytes < tramaEnviar.Length)
-                    {
-                        totalBytes += SocketCliente.Send(tramaEnviar, totalBytes, tramaEnviar.Length - totalBytes, SocketFlags.None);
-                    }
-
+                    SocketCliente.Send(tramaEnviar);
 
                     if (i == 0)
                     {
                         if (tamaño_imagen < 1011)
                         {
-                            UpdateEnvio(100, archivo.Avance, tamaño_imagen);
+                            UpdateEnvio(100, archivoEnviar.Avance, tamaño_imagen);
                         }
                         else
                         {
@@ -425,7 +430,7 @@ namespace winProyectService
                     }
                     else
                     {
-                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivo.Avance, tamaño_imagen); 
+                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivoEnviar.Avance, tamaño_imagen); 
                     }
 
                 }
