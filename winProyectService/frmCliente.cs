@@ -221,7 +221,7 @@ namespace winProyectService
 
             int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 23 + size_nombre, 1));
 
-            string ruta_temp = $"E:/Probando/Recibir/{nombre}";
+            string ruta_temp = $"D:/copiar_reed_{nombre}";
 
             if (File.Exists(ruta_temp))
             {
@@ -296,15 +296,15 @@ namespace winProyectService
                 return;
             }
 
-            barraRecibir.Value = (int)Math.Ceiling(cantidad);
-            lblBytesConstruccion.Text = $"Bytes de Construccion: {bytes_actuales.ToString()}/{total.ToString()}";
+            barraRecibir1.Value = (int)Math.Ceiling(cantidad);
+            lblBytesConstruccion1.Text = $"Bytes de Construccion: {bytes_actuales.ToString()}/{total.ToString()}";
             if (bytes_actuales == total)
             {
-                checkRecibir.Checked = true;
+                checkRecibir1.Checked = true;
             }
             else
             {
-                checkRecibir.Checked = false;
+                checkRecibir1.Checked = false;
             }
         }
 
@@ -547,17 +547,32 @@ namespace winProyectService
                 return;
             }
 
-            barraProgreso.Value = (int)Math.Ceiling(cantidad);
-            lblBytesEnvio.Text = $"Bytes Enviados: {bytes_actuales.ToString()}/{total.ToString()}";
+            barraProgreso1.Value = (int)Math.Ceiling(cantidad);
+            lblBytesEnvio1.Text = $"Bytes Enviados: {bytes_actuales.ToString()}/{total.ToString()}";
 
             if (bytes_actuales == total)
             {
-                checkEnviado.Checked = true;
+                checkEnviado1.Checked = true;
             }
             else
             {
-                checkEnviado.Checked = false;
+                checkEnviado1.Checked = false;
             }
+
+        }
+
+        private void progressBar2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label18_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
 
         }
     }
