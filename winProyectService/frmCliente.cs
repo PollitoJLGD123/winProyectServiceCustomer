@@ -73,6 +73,13 @@ namespace winProyectService
         {
             try
             {
+                // MENSAJE M
+                // INFO I
+                // ASIGNARID ID N
+                // ARCHIVO A
+
+                // M - po12 - infoooooooooooooooooooooooooooooo 
+
                 if (txtMensaje.Text.Length <= 0 || txtMensaje.Text.Equals(""))
                 {
                     MessageBox.Show("Ingresa texto válido");
@@ -112,8 +119,8 @@ namespace winProyectService
                     int bytesRead = SocketCliente.Receive(buffer);
                     if (bytesRead > 0)
                     {
-                        string receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        procesarMensaje(receivedMessage);
+                        
+                        procesarMensaje(buffer, bytesRead);
                     }
                     
                 }
@@ -135,8 +142,10 @@ namespace winProyectService
             }
         }
 
-        private void procesarMensaje(string mensaje)
+        private void procesarMensaje(byte[] buffer, int cantidad)
         {
+            string mensaje = Encoding.UTF8.GetString(buffer, 0, cantidad);
+
             if (mensaje.StartsWith("CLIENTS:"))
             {
                 UpdateClientList(mensaje.Substring(8));
@@ -145,7 +154,7 @@ namespace winProyectService
             {
                 if (mensaje.StartsWith("ID:"))
                 {
-                    UpdateName(mensaje.Substring(3));
+                    UpdateName(mensaje.Substring(3,4));
                 }
                 else
                 {
@@ -193,19 +202,19 @@ namespace winProyectService
                             //aea1:INFO:
                             if (tipo.StartsWith("ARCHIVO:"))
                             {
-                                byte[] bytes = Encoding.UTF8.GetBytes(mensaje.Substring(13));
+                                byte[] bytes = buffer;
 
                                 int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
 
                                 if (bytesRestantes > 1011)
                                 {
-                                    archivoRecibir.EscribiendoArchivo.Write(bytes, 0, 1011);
+                                    archivoRecibir.EscribiendoArchivo.Write(bytes, 13, 1011);
                                     archivoRecibir.Avance += 1011;
                                     UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
                                 }
                                 else
                                 {
-                                    archivoRecibir.EscribiendoArchivo.Write(bytes, 0, bytesRestantes);
+                                    archivoRecibir.EscribiendoArchivo.Write(bytes, 13, bytesRestantes);
                                     archivoRecibir.Avance += bytesRestantes;
                                     UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
                                     archivoRecibir.EscribiendoArchivo.Close();
@@ -401,20 +410,26 @@ namespace winProyectService
 
                 int tamaño_imagen = archivoEnviar.bytes.Length;
 
-                int cantidad_exacta = 1011 * ((int)(tamaño_imagen / 1011)); //
+                int cantidad_exacta = 1011 * ((int)(tamaño_imagen / 1011));
 
-                for (int i = 0; i < tamaño_imagen; i += 1011) //0, 
+                for (int i = 0; i < tamaño_imagen; i += 1011)  
                 {
-                    int size = Math.Min(1011, archivoEnviar.bytes.Length - i); //
+                    int size = Math.Min(1011, archivoEnviar.bytes.Length - i); 
 
-                    byte[] tramaEnviar = new byte[1024];
+                    byte[] tramaEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
 
                     archivoEnviar.Avance += size;
 
-                    Array.Copy(cabeza, 0, tramaEnviar, 0, 13); //aea1:ARCHIVO:
+                    Array.Copy(cabeza, 0, tramaEnviar, 0, 13);
                     Array.Copy(archivoEnviar.bytes, i, tramaEnviar, 13, size);
 
-                    SocketCliente.Send(tramaEnviar);
+
+                    int totalBytes = 0;
+                    while (totalBytes < tramaEnviar.Length)
+                    {
+                        totalBytes += SocketCliente.Send(tramaEnviar, totalBytes, tramaEnviar.Length - totalBytes, SocketFlags.None);
+                    }
+
 
                     if (i == 0)
                     {
@@ -424,19 +439,19 @@ namespace winProyectService
                         }
                         else
                         {
-                            UpdateEnvio(0, 0, tamaño_imagen);  
+                            UpdateEnvio(0, 0, tamaño_imagen);
                         }
 
                     }
                     else
                     {
-                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivoEnviar.Avance, tamaño_imagen); 
+                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivoEnviar.Avance, tamaño_imagen);
                     }
 
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("Error al enviar archivo: " + ex.Message);
             }

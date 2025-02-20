@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -185,16 +186,26 @@ namespace winProyectService
 
                     if (bytesRead == 0) break; //cliente se conecta y no envia nada
 
-                    string dataReceived = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    
-                    procesarMensaje(clientId, dataReceived);
+                    string dataReceived = Encoding.ASCII.GetString(buffer, 0, bytesRead); //
+
+                    string id_recibe = dataReceived.Substring(0, 4);
+
+                    string tipo = dataReceived.Substring(5);
+
+                    if (tipo.StartsWith("ARCHIVO:"))
+                    {
+                        procesarArchivo(clientId,buffer, id_recibe);
+                    }
+                    else
+                    {
+                        procesarMensaje(clientId, dataReceived, id_recibe);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 UpdateUI($"Error en la comunicación con el cliente: {ex.Message}");
                 MessageBox.Show(this, ex.Message);
-                Console.WriteLine("BOta error acA 111111111");
             }
             finally
             {
@@ -207,11 +218,28 @@ namespace winProyectService
             }
         }
 
-        private void procesarMensaje(string id_envia, string message)
+        private void procesarArchivo(string id_envia, byte[] bufferArchivo,string id_recibir)
         {
-            string id_recibe = message.Substring(0, 4);
+            byte[] temporal = bufferArchivo;
 
-            if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
+            if (listaClientes.TryGetValue(id_recibir, out Socket socket_recibe))
+            {
+                byte[] nombreEnvia = Encoding.UTF8.GetBytes(id_envia);
+
+                Array.Copy(nombreEnvia, 0,temporal,0,4);
+
+                socket_recibe.Send(temporal);
+            }
+            else
+            {
+                UpdateUI($"El cliente {id_recibir} no está conectado");
+            }
+        }
+
+        private void procesarMensaje(string id_envia, string message, string id_recibir)
+        {
+
+            if (listaClientes.TryGetValue(id_recibir, out Socket socket_recibe))
             {
                 string tipo = message.Substring(5);
                 string mensaje_total = $"{id_envia}:{tipo}";
@@ -220,7 +248,7 @@ namespace winProyectService
             }
             else
             {
-                UpdateUI($"El cliente {id_recibe} no está conectado");
+                UpdateUI($"El cliente {id_recibir} no está conectado");
             }       
         }
 
