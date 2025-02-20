@@ -20,3 +20,6 @@ E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectS
 E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.csproj.CoreCompileInputs.cache
 E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.exe
 E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.pdb
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\bin\Debug\System.ValueTuple.dll
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\bin\Debug\System.ValueTuple.xml
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProye.71109C68.Up2Date

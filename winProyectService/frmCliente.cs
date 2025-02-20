@@ -14,6 +14,7 @@ using System.IO;
 using winTwoPlays;
 using System.Security.Cryptography;
 using System.Net.NetworkInformation;
+using System.Collections.Concurrent;
 
 namespace winProyectService
 {
@@ -42,6 +43,8 @@ namespace winProyectService
 
         private Queue<byte[]> colaArchivos = new Queue<byte[]>();
         private bool recibiendoArchivo = false;
+
+       
 
         public frmCliente()
         {
@@ -77,6 +80,7 @@ namespace winProyectService
                 MessageBox.Show(ex.Message);
             }
         }
+
 
         private void btnEnviarMensaje_Click(object sender, EventArgs e)
         {
@@ -455,6 +459,8 @@ namespace winProyectService
                 byte[] cabeza = Encoding.UTF8.GetBytes($"A:{recipientId}:"); // A:aea1:
                 int tamaño_imagen = archivoEnviar.bytes.Length;
 
+                int cantidad_exacta = 1017 * ((int)(tamaño_imagen / 1017));
+
                 for (int i = 0; i < tamaño_imagen; i += 1017)
                 {
                     int size = Math.Min(1017, tamaño_imagen - i);
@@ -473,8 +479,22 @@ namespace winProyectService
                         totalEnviado += enviado;
                     }
 
-                    float progreso = ((float)archivoEnviar.Avance / tamaño_imagen) * 100;
-                    UpdateEnvio(progreso, archivoEnviar.Avance, tamaño_imagen);
+                    if (i == 0)
+                    {
+                        if (tamaño_imagen < 1011)
+                        {
+                            UpdateEnvio(100, archivoEnviar.Avance, tamaño_imagen);
+                        }
+                        else
+                        {
+                            UpdateEnvio(0, 0, tamaño_imagen);
+                        }
+
+                    }
+                    else
+                    {
+                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivoEnviar.Avance, tamaño_imagen);
+                    }
                 }
             }
             catch (Exception ex)
