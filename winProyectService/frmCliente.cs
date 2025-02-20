@@ -40,6 +40,9 @@ namespace winProyectService
 
         byte[] bufferRecibir;
 
+        private Queue<byte[]> colaArchivos = new Queue<byte[]>();
+        private bool recibiendoArchivo = false;
+
         public frmCliente()
         {
             InitializeComponent();
@@ -54,6 +57,9 @@ namespace winProyectService
                 PuntoRemoto = new IPEndPoint(ipDireccion, puerto);
 
                 SocketCliente = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                SocketCliente.ReceiveBufferSize = 8192; 
+                SocketCliente.SendBufferSize = 8192;
 
                 SocketCliente.Connect(PuntoRemoto);
 
@@ -140,7 +146,15 @@ namespace winProyectService
                                 procesarInformacion();
                                 break;
                             case "A":
-                                procesarArchivo();
+                                lock (colaArchivos)
+                                {
+                                    colaArchivos.Enqueue(bufferRecibir.Take(bytesRead).ToArray());
+                                }
+                                if (!recibiendoArchivo)
+                                {
+                                    Thread hiloArchivo = new Thread(procesarArchivo);
+                                    hiloArchivo.Start();
+                                }
                                 break;
                             default:
                                 MessageBox.Show("Mensaje no reconocido");
@@ -214,31 +228,54 @@ namespace winProyectService
 
         private void procesarArchivo()
         {
+            recibiendoArchivo = true;
+
             try
             {
-                int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
-                int tamañoPaquete = bufferRecibir.Length - 7; 
-
-                int bytesAEscribir = Math.Min(bytesRestantes, tamañoPaquete);
-
-                archivoRecibir.EscribiendoArchivo.Write(bufferRecibir, 7, bytesAEscribir);
-                archivoRecibir.Avance += bytesAEscribir;
-
-                UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
-
-                if (archivoRecibir.Avance >= archivoRecibir.bytes.Length)
+                while (colaArchivos.Count > 0 || archivoRecibir.Avance < archivoRecibir.bytes.Length)
                 {
-                    archivoRecibir.EscribiendoArchivo.Close();
-                    archivoRecibir.FlujoArchivoRecibir.Close();
-                    UpdateUI($"Cliente {ASCIIEncoding.UTF8.GetString(bufferRecibir,2,4)} envió un archivo exitosamente.");
-                    Console.WriteLine("Archivo recibido correctamente");
+                    byte[] paquete;
+                    lock (colaArchivos)
+                    {
+                        if (colaArchivos.Count == 0)
+                            continue;
+                        paquete = colaArchivos.Dequeue();
+                    }
+
+                    int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
+                    int tamañoPaquete = paquete.Length - 7;
+
+                    int bytesAEscribir = Math.Min(bytesRestantes, tamañoPaquete);
+
+                    if (bytesAEscribir > 0)
+                    {
+                        archivoRecibir.EscribiendoArchivo.Write(paquete, 7, bytesAEscribir);
+                        archivoRecibir.Avance += bytesAEscribir;
+                    }
+
+                    UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
+
+                    if (archivoRecibir.Avance >= archivoRecibir.bytes.Length)
+                    {
+                        archivoRecibir.EscribiendoArchivo.Flush(); 
+                        archivoRecibir.EscribiendoArchivo.Close();
+                        archivoRecibir.FlujoArchivoRecibir.Close();
+                        UpdateUI($"Cliente {Encoding.UTF8.GetString(paquete, 2, 4)} envió un archivo exitosamente.");
+                        Console.WriteLine("Archivo recibido correctamente");
+                        break;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error en procesarArchivo: {ex.Message}");
             }
+            finally
+            {
+                recibiendoArchivo = false;
+            }
         }
+
 
         private void UpdateRecibir(float cantidad, float bytes_actuales, float total)
         {

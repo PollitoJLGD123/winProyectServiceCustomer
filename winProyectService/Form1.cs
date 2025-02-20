@@ -81,6 +81,10 @@ namespace winProyectService
                 PuntoFinal = new IPEndPoint(ipDireccion, puerto);
 
                 SocketEscucha = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                SocketEscucha.ReceiveBufferSize = 8192;
+                SocketEscucha.SendBufferSize = 8192;
+
                 SocketEscucha.Bind(PuntoFinal);
 
                 SocketEscucha.Listen(5);
