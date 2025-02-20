@@ -128,25 +128,18 @@ namespace winProyectService
                         switch (tipo_mensaje)
                         {
                             case "C":
-                                Console.WriteLine("Bytes recibidos en el Cliente CLIENTS: " + bytesRead);
                                 procesarClientes(bytesRead);
                                 break;
                             case "N":
-                                Console.WriteLine("Bytes recibidos en el Cliente ID: " + bytesRead);
                                 procesarID(bytesRead);
                                 break;
                             case "M":
-                                Console.WriteLine("Bytes recibidos en el Cliente MENSAJE: " + bytesRead);
                                 procesarMensaje(bytesRead);
                                 break;
                             case "I":
-                                Console.WriteLine("Bytes recibidos en el Cliente INFO: " + bytesRead);
                                 procesarInformacion();
                                 break;
                             case "A":
-                                Console.WriteLine("Bytes recibidos en el Cliente ARCHIVO: " + bytesRead);
-                                Console.WriteLine("VEz Recibida en cliente" + i);
-                                i++;
                                 procesarArchivo();
                                 break;
                             default:
