@@ -216,7 +216,7 @@ namespace winProyectService
 
             string nombre = Encoding.UTF8.GetString(bufferRecibir, 22, size_nombre);
 
-            string ruta_temp = $"E:/Probando/Recibir/{nombre}";
+            string ruta_temp = $"D:/COPIA_RED_{nombre}";
 
             if (File.Exists(ruta_temp))
             {

@@ -23,3 +23,17 @@ E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectS
 E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\bin\Debug\System.ValueTuple.dll
 E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\bin\Debug\System.ValueTuple.xml
 E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProye.71109C68.Up2Date
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\bin\Debug\winProyectService.exe.config
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\bin\Debug\winProyectService.exe
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\bin\Debug\winProyectService.pdb
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\bin\Debug\System.ValueTuple.dll
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\bin\Debug\System.ValueTuple.xml
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.csproj.AssemblyReference.cache
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.Form1.resources
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.frmCliente.resources
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.Properties.Resources.resources
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.csproj.GenerateResource.cache
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.csproj.CoreCompileInputs.cache
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProye.71109C68.Up2Date
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.exe
+D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.pdb
