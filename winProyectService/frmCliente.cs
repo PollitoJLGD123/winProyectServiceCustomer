@@ -37,6 +37,8 @@ namespace winProyectService
 
         classArchivo archivoEnviar;
 
+        byte[] bufferRecibir;
+
         public frmCliente()
         {
             InitializeComponent();
@@ -90,7 +92,7 @@ namespace winProyectService
                     {
                         string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
                         string texto = txtMensaje.Text.Trim();
-                        string fullMessage = $"{recipientId}:MENSAJE:{texto}";
+                        string fullMessage = $"M:{recipientId}:{texto}";
                         byte[] msgBuffer = Encoding.UTF8.GetBytes(fullMessage);
                         SocketCliente.Send(msgBuffer);
                         UpdateUI($"Yo: {texto} (para {comboClientes.Text})");
@@ -113,14 +115,43 @@ namespace winProyectService
         {
             try
             {
-                byte[] buffer = new byte[1024];
+                bufferRecibir = new byte[1024];
+                int i = 0;
                 while (SocketCliente.Connected)
                 {
-                    int bytesRead = SocketCliente.Receive(buffer);
+                    int bytesRead = SocketCliente.Receive(bufferRecibir);
                     if (bytesRead > 0)
                     {
+                        string tipo_mensaje = Encoding.UTF8.GetString(bufferRecibir, 0, 1);
                         
-                        procesarMensaje(buffer, bytesRead);
+                        switch (tipo_mensaje)
+                        {
+                            case "C":
+                                Console.WriteLine("Bytes recibidos en el Cliente CLIENTS: " + bytesRead);
+                                procesarClientes(bytesRead);
+                                break;
+                            case "N":
+                                Console.WriteLine("Bytes recibidos en el Cliente ID: " + bytesRead);
+                                procesarID(bytesRead);
+                                break;
+                            case "M":
+                                Console.WriteLine("Bytes recibidos en el Cliente MENSAJE: " + bytesRead);
+                                procesarMensaje(bytesRead);
+                                break;
+                            case "I":
+                                Console.WriteLine("Bytes recibidos en el Cliente INFO: " + bytesRead);
+                                procesarInformacion();
+                                break;
+                            case "A":
+                                Console.WriteLine("Bytes recibidos en el Cliente ARCHIVO: " + bytesRead);
+                                Console.WriteLine("VEz Recibida en cliente" + i);
+                                i++;
+                                procesarArchivo();
+                                break;
+                            default:
+                                MessageBox.Show("Mensaje no reconocido");
+                                break;
+                        }
                     }
                     
                 }
@@ -142,95 +173,92 @@ namespace winProyectService
             }
         }
 
-        private void procesarMensaje(byte[] buffer, int cantidad)
+        private void procesarClientes(int cantidad)
         {
-            string mensaje = Encoding.UTF8.GetString(buffer, 0, cantidad);
+            string message = Encoding.UTF8.GetString(bufferRecibir, 0, cantidad);
+            UpdateClientList(message.Substring(2));
+        }
 
-            if (mensaje.StartsWith("CLIENTS:"))
+        private void procesarID(int cantidad)
+        {
+            string message = Encoding.UTF8.GetString(bufferRecibir, 0, cantidad);
+            UpdateName(message.Substring(2, 4));
+        }
+
+        private void procesarMensaje(int cantidad)
+        {
+            string message = Encoding.UTF8.GetString(bufferRecibir, 0, cantidad);
+            string emisor = message.Substring(2, 4);
+            string message_real = message.Substring(7);
+
+            UpdateUI($"{clientes_conectados[emisor]}: {message_real}");
+        }
+
+        private void procesarInformacion()
+        {
+            //string info_total = $"I:001J:0000002222:006:AE.TXT";
+
+            if (bufferRecibir.Length < 22)
             {
-                UpdateClientList(mensaje.Substring(8));
+                Console.WriteLine("Error: Buffer demasiado pequeño para procesar la información.");
+                return;
             }
-            else
+
+            string emisor = Encoding.UTF8.GetString(bufferRecibir, 2, 4);
+            int size_archivo = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 10));
+            int size_nombre = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 18, 3));
+
+            string nombre = Encoding.UTF8.GetString(bufferRecibir, 22, size_nombre);
+
+            string ruta_temp = $"E:/Probando/Recibir/{nombre}";
+
+            if (File.Exists(ruta_temp))
             {
-                if (mensaje.StartsWith("ID:"))
+                File.Delete(ruta_temp); // Evitamos problemas de sobreescritura 
+            }
+
+            archivoRecibir = new classArchivo(ruta_temp, new byte[size_archivo], 0);
+
+            archivoRecibir.iniciarFlujo();
+
+            Console.WriteLine("Tamaño del archivo: " + archivoRecibir.bytes.Length);
+        }
+
+        private void procesarArchivo()
+        {
+            try
+            {
+                int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
+                int tamañoPaquete = bufferRecibir.Length - 7; 
+
+                Console.WriteLine($"Bytes restantes: {bytesRestantes}");
+                Console.WriteLine($"Avance actual: {archivoRecibir.Avance}");
+                Console.WriteLine($"Tamaño de paquete recibido: {tamañoPaquete}");
+
+                if (tamañoPaquete <= 0)
                 {
-                    UpdateName(mensaje.Substring(3,4));
+                    Console.WriteLine("Error: Paquete recibido es demasiado pequeño.");
+                    return;
                 }
-                else
+
+                int bytesAEscribir = Math.Min(bytesRestantes, tamañoPaquete);
+
+                archivoRecibir.EscribiendoArchivo.Write(bufferRecibir, 7, bytesAEscribir);
+                archivoRecibir.Avance += bytesAEscribir;
+
+                UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
+
+                if (archivoRecibir.Avance >= archivoRecibir.bytes.Length)
                 {
-                    string sendId = mensaje.Substring(0,4); // 
-
-                    string tipo = mensaje.Substring(5);
-
-                    if (tipo.StartsWith("MENSAJE:"))
-                    {
-                        string actualMessage = mensaje.Substring(13);
-                        UpdateUI($"{clientes_conectados[sendId]}: {actualMessage}");
-                    }
-                    else
-                    {
-                        if(tipo.StartsWith("INFO:"))
-                        {
-                            //string info_total = $"001J:INFO:0000002222:006:AE.TXT";
-
-                            int size_archivo = int.Parse(mensaje.Substring(10, 10));
-
-                            Console.WriteLine("Tamaño archivo" + size_archivo);
-
-                            int size_nombre = int.Parse(mensaje.Substring(21, 3));
-
-                            Console.WriteLine("Tamaño nombre" + size_nombre);
-
-                            string nombre = mensaje.Substring(25, size_nombre);
-
-                            Console.WriteLine("Nombre" + nombre);
-
-                            string ruta_temp = $"E:/Probando/Recibir/{nombre}";
-
-                            if (File.Exists(ruta_temp))
-                            {
-                                File.Delete(ruta_temp); // Evitamos problemas de sobreescritura 
-                            }
-
-                            archivoRecibir = new classArchivo(ruta_temp, new byte[size_archivo], 0);
-
-                            archivoRecibir.iniciarFlujo();
-                        }
-                        else
-                        {
-                            // aea1:ARCHIVO:11111111112222222222ddddddd
-                            //aea1:INFO:
-                            if (tipo.StartsWith("ARCHIVO:"))
-                            {
-                                byte[] bytes = buffer;
-
-                                int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
-
-                                if (bytesRestantes > 1011)
-                                {
-                                    archivoRecibir.EscribiendoArchivo.Write(bytes, 13, 1011);
-                                    archivoRecibir.Avance += 1011;
-                                    UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
-                                }
-                                else
-                                {
-                                    archivoRecibir.EscribiendoArchivo.Write(bytes, 13, bytesRestantes);
-                                    archivoRecibir.Avance += bytesRestantes;
-                                    UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
-                                    archivoRecibir.EscribiendoArchivo.Close();
-                                    archivoRecibir.FlujoArchivoRecibir.Close();
-                                    UpdateUI($"Cliente {sendId} envio un archivo: {archivoRecibir.Nombre}");
-                                }
-
-                            }
-                            else
-                            {
-                                MessageBox.Show("Mensaje no reconocido");
-                            }
-                        }
-                    }
-                    
+                    archivoRecibir.EscribiendoArchivo.Close();
+                    archivoRecibir.FlujoArchivoRecibir.Close();
+                    UpdateUI($"Cliente {archivoRecibir.Nombre} envió un archivo exitosamente.");
+                    Console.WriteLine("Archivo recibido correctamente y cerrado.");
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en procesarArchivo: {ex.Message}");
             }
         }
 
@@ -393,7 +421,9 @@ namespace winProyectService
 
             string size_nombre = nombre.Length.ToString("D3");
 
-            string info_total = $"{recipientId}:INFO:{size_archivo}:{size_nombre}:{nombre}";
+            string info_total = $"I:{recipientId}:{size_archivo}:{size_nombre}:{nombre}";
+
+            Console.WriteLine(info_total);
 
             byte[] bufferInfo = Encoding.UTF8.GetBytes(info_total);
 
@@ -406,34 +436,35 @@ namespace winProyectService
             {
                 string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
 
-                byte[] cabeza = ASCIIEncoding.UTF8.GetBytes($"{recipientId}:ARCHIVO:");
+                byte[] cabeza = ASCIIEncoding.UTF8.GetBytes($"A:{recipientId}:"); // A:aea1:
 
                 int tamaño_imagen = archivoEnviar.bytes.Length;
 
-                int cantidad_exacta = 1011 * ((int)(tamaño_imagen / 1011));
+                int cantidad_exacta = 1017 * ((int)(tamaño_imagen / 1017));
 
-                for (int i = 0; i < tamaño_imagen; i += 1011)  
+                for (int i = 0; i < tamaño_imagen; i += 1017)  
                 {
-                    int size = Math.Min(1011, archivoEnviar.bytes.Length - i); 
+                    int size = Math.Min(1017, archivoEnviar.bytes.Length - i); 
 
-                    byte[] tramaEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
+                    byte[] tramaEnviar = new byte[7 + size];
 
                     archivoEnviar.Avance += size;
 
-                    Array.Copy(cabeza, 0, tramaEnviar, 0, 13);
-                    Array.Copy(archivoEnviar.bytes, i, tramaEnviar, 13, size);
+                    Array.Copy(cabeza, 0, tramaEnviar, 0, 7);
+                    Array.Copy(archivoEnviar.bytes, i, tramaEnviar, 7, size);
 
-
-                    int totalBytes = 0;
-                    while (totalBytes < tramaEnviar.Length)
+                    int totalEnviado = 0;
+                    while (totalEnviado < tramaEnviar.Length)
                     {
-                        totalBytes += SocketCliente.Send(tramaEnviar, totalBytes, tramaEnviar.Length - totalBytes, SocketFlags.None);
+                        int enviado = SocketCliente.Send(tramaEnviar, totalEnviado, tramaEnviar.Length - totalEnviado, SocketFlags.None);
+                        if (enviado == 0) throw new Exception("Conexión cerrada durante el envío");
+                        totalEnviado += enviado;
                     }
 
 
                     if (i == 0)
                     {
-                        if (tamaño_imagen < 1011)
+                        if (tamaño_imagen < 1017)
                         {
                             UpdateEnvio(100, archivoEnviar.Avance, tamaño_imagen);
                         }

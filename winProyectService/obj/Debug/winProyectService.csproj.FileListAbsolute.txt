@@ -9,3 +9,14 @@ E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debu
 E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.exe
 E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.pdb
 E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProyectService.frmCliente.resources
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\bin\Debug\winProyectService.exe.config
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\bin\Debug\winProyectService.exe
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\bin\Debug\winProyectService.pdb
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.csproj.AssemblyReference.cache
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.Form1.resources
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.frmCliente.resources
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.Properties.Resources.resources
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.csproj.GenerateResource.cache
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.csproj.CoreCompileInputs.cache
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.exe
+E:\UNT\Ciclo 7\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.pdb

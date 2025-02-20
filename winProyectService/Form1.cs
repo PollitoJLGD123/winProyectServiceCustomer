@@ -177,7 +177,7 @@ namespace winProyectService
             byte[] buffer = new byte[1024];
             try
             {
-
+                int i = 0;
                 while (true)
                 {
                     int bytesRead = cliente_socket.Receive(buffer); // solo devuelve cuando se desconecta el cliente
@@ -186,20 +186,23 @@ namespace winProyectService
 
                     if (bytesRead == 0) break; //cliente se conecta y no envia nada
 
-                    string dataReceived = Encoding.ASCII.GetString(buffer, 0, bytesRead); //
+                    string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
 
-                    string id_recibe = dataReceived.Substring(0, 4);
-
-                    string tipo = dataReceived.Substring(5);
-
-                    if (tipo.StartsWith("ARCHIVO:"))
+                    if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
                     {
-                        procesarArchivo(clientId,buffer, id_recibe);
+                        byte[] nombreEnvia = Encoding.UTF8.GetBytes(clientId);
+
+                        Array.Copy(nombreEnvia, 0, buffer, 2, 4);
+
+                        Console.WriteLine("Enviando mensaje a: " + id_recibe + " Y Se envio correctamente VEZ: " + i);
+                        socket_recibe.Send(buffer, bytesRead, SocketFlags.None);
+                        i++;
                     }
                     else
                     {
-                        procesarMensaje(clientId, dataReceived, id_recibe);
+                        UpdateUI($"El cliente {id_recibe} no está conectado");
                     }
+
                 }
             }
             catch (Exception ex)
@@ -218,49 +221,15 @@ namespace winProyectService
             }
         }
 
-        private void procesarArchivo(string id_envia, byte[] bufferArchivo,string id_recibir)
-        {
-            byte[] temporal = bufferArchivo;
-
-            if (listaClientes.TryGetValue(id_recibir, out Socket socket_recibe))
-            {
-                byte[] nombreEnvia = Encoding.UTF8.GetBytes(id_envia);
-
-                Array.Copy(nombreEnvia, 0,temporal,0,4);
-
-                socket_recibe.Send(temporal);
-            }
-            else
-            {
-                UpdateUI($"El cliente {id_recibir} no está conectado");
-            }
-        }
-
-        private void procesarMensaje(string id_envia, string message, string id_recibir)
-        {
-
-            if (listaClientes.TryGetValue(id_recibir, out Socket socket_recibe))
-            {
-                string tipo = message.Substring(5);
-                string mensaje_total = $"{id_envia}:{tipo}";
-                byte[] msgBuffer = Encoding.UTF8.GetBytes(mensaje_total);
-                socket_recibe.Send(msgBuffer);
-            }
-            else
-            {
-                UpdateUI($"El cliente {id_recibir} no está conectado");
-            }       
-        }
-
         private void enviarID(string id, Socket cliente_socket)
         {
-            byte[] idBuffer = Encoding.UTF8.GetBytes("ID:" + id);
+            byte[] idBuffer = Encoding.UTF8.GetBytes("N:" + id);
             cliente_socket.Send(idBuffer);
         }
 
         private void enviarClientes(Socket cliente_socket)
         {
-            string clientes_enlazados = "CLIENTS:" + string.Join(",", listaClientes.Keys);
+            string clientes_enlazados = "C:" + string.Join(",", listaClientes.Keys);
             byte[] listBuffer = Encoding.UTF8.GetBytes(clientes_enlazados);
             cliente_socket.Send(listBuffer);
         }
