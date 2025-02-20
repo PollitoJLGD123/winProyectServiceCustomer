@@ -94,7 +94,7 @@
             this.panel1.Controls.Add(this.txtMensaje);
             this.panel1.Controls.Add(this.lblCustomer);
             this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(806, 595);
             this.panel1.TabIndex = 0;
@@ -104,7 +104,7 @@
             this.txtRutaEnviada.Enabled = false;
             this.txtRutaEnviada.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtRutaEnviada.Location = new System.Drawing.Point(297, 524);
-            this.txtRutaEnviada.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtRutaEnviada.Margin = new System.Windows.Forms.Padding(2);
             this.txtRutaEnviada.Name = "txtRutaEnviada";
             this.txtRutaEnviada.Size = new System.Drawing.Size(240, 51);
             this.txtRutaEnviada.TabIndex = 50;
@@ -116,9 +116,9 @@
             this.groupBox3.Controls.Add(this.checkRecibir);
             this.groupBox3.Controls.Add(this.lblBytesConstruccion);
             this.groupBox3.Location = new System.Drawing.Point(297, 418);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox3.Size = new System.Drawing.Size(238, 91);
             this.groupBox3.TabIndex = 49;
             this.groupBox3.TabStop = false;
@@ -126,7 +126,7 @@
             // barraRecibir
             // 
             this.barraRecibir.Location = new System.Drawing.Point(17, 22);
-            this.barraRecibir.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.barraRecibir.Margin = new System.Windows.Forms.Padding(2);
             this.barraRecibir.Name = "barraRecibir";
             this.barraRecibir.Size = new System.Drawing.Size(170, 19);
             this.barraRecibir.TabIndex = 24;
@@ -139,7 +139,7 @@
             this.checkRecibir.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.checkRecibir.ForeColor = System.Drawing.Color.Red;
             this.checkRecibir.Location = new System.Drawing.Point(200, 24);
-            this.checkRecibir.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkRecibir.Margin = new System.Windows.Forms.Padding(2);
             this.checkRecibir.Name = "checkRecibir";
             this.checkRecibir.Size = new System.Drawing.Size(15, 14);
             this.checkRecibir.TabIndex = 26;
@@ -158,7 +158,7 @@
             // txtDireccion
             // 
             this.txtDireccion.Location = new System.Drawing.Point(404, 344);
-            this.txtDireccion.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtDireccion.Margin = new System.Windows.Forms.Padding(2);
             this.txtDireccion.Name = "txtDireccion";
             this.txtDireccion.ReadOnly = true;
             this.txtDireccion.Size = new System.Drawing.Size(110, 20);
@@ -167,7 +167,7 @@
             // txtPuerto
             // 
             this.txtPuerto.Location = new System.Drawing.Point(374, 318);
-            this.txtPuerto.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtPuerto.Margin = new System.Windows.Forms.Padding(2);
             this.txtPuerto.Name = "txtPuerto";
             this.txtPuerto.ReadOnly = true;
             this.txtPuerto.Size = new System.Drawing.Size(92, 20);
@@ -207,7 +207,7 @@
             // txtConversacion
             // 
             this.txtConversacion.Location = new System.Drawing.Point(34, 347);
-            this.txtConversacion.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtConversacion.Margin = new System.Windows.Forms.Padding(2);
             this.txtConversacion.Name = "txtConversacion";
             this.txtConversacion.ReadOnly = true;
             this.txtConversacion.Size = new System.Drawing.Size(208, 186);
@@ -262,7 +262,7 @@
             // 
             this.btnEnviarImagen.Font = new System.Drawing.Font("Dubai", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnEnviarImagen.Location = new System.Drawing.Point(605, 353);
-            this.btnEnviarImagen.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnEnviarImagen.Margin = new System.Windows.Forms.Padding(2);
             this.btnEnviarImagen.Name = "btnEnviarImagen";
             this.btnEnviarImagen.Size = new System.Drawing.Size(135, 36);
             this.btnEnviarImagen.TabIndex = 33;
@@ -276,9 +276,9 @@
             this.groupBox1.Controls.Add(this.lblBytesEnvio);
             this.groupBox1.Controls.Add(this.checkEnviado);
             this.groupBox1.Location = new System.Drawing.Point(563, 446);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox1.Size = new System.Drawing.Size(232, 91);
             this.groupBox1.TabIndex = 32;
             this.groupBox1.TabStop = false;
@@ -286,7 +286,7 @@
             // barraProgreso
             // 
             this.barraProgreso.Location = new System.Drawing.Point(14, 27);
-            this.barraProgreso.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.barraProgreso.Margin = new System.Windows.Forms.Padding(2);
             this.barraProgreso.Name = "barraProgreso";
             this.barraProgreso.Size = new System.Drawing.Size(170, 19);
             this.barraProgreso.TabIndex = 1;
@@ -308,7 +308,7 @@
             this.checkEnviado.Font = new System.Drawing.Font("Lucida Handwriting", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.checkEnviado.ForeColor = System.Drawing.Color.Red;
             this.checkEnviado.Location = new System.Drawing.Point(198, 27);
-            this.checkEnviado.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkEnviado.Margin = new System.Windows.Forms.Padding(2);
             this.checkEnviado.Name = "checkEnviado";
             this.checkEnviado.Size = new System.Drawing.Size(29, 19);
             this.checkEnviado.TabIndex = 8;
@@ -330,7 +330,7 @@
             this.txtRuta.Enabled = false;
             this.txtRuta.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtRuta.Location = new System.Drawing.Point(570, 266);
-            this.txtRuta.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtRuta.Margin = new System.Windows.Forms.Padding(2);
             this.txtRuta.Name = "txtRuta";
             this.txtRuta.Size = new System.Drawing.Size(204, 71);
             this.txtRuta.TabIndex = 30;
@@ -362,7 +362,7 @@
             // 
             this.btnSeleccionarImagen.Font = new System.Drawing.Font("Dubai", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSeleccionarImagen.Location = new System.Drawing.Point(577, 141);
-            this.btnSeleccionarImagen.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnSeleccionarImagen.Margin = new System.Windows.Forms.Padding(2);
             this.btnSeleccionarImagen.Name = "btnSeleccionarImagen";
             this.btnSeleccionarImagen.Size = new System.Drawing.Size(170, 35);
             this.btnSeleccionarImagen.TabIndex = 27;
@@ -375,7 +375,7 @@
             this.comboClientes.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboClientes.FormattingEnabled = true;
             this.comboClientes.Location = new System.Drawing.Point(330, 130);
-            this.comboClientes.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.comboClientes.Margin = new System.Windows.Forms.Padding(2);
             this.comboClientes.Name = "comboClientes";
             this.comboClientes.Size = new System.Drawing.Size(147, 21);
             this.comboClientes.TabIndex = 26;
@@ -395,7 +395,7 @@
             // 
             this.btnEnviarMensaje.Font = new System.Drawing.Font("MV Boli", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnEnviarMensaje.Location = new System.Drawing.Point(34, 214);
-            this.btnEnviarMensaje.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnEnviarMensaje.Margin = new System.Windows.Forms.Padding(2);
             this.btnEnviarMensaje.Name = "btnEnviarMensaje";
             this.btnEnviarMensaje.Size = new System.Drawing.Size(176, 29);
             this.btnEnviarMensaje.TabIndex = 10;
@@ -417,7 +417,7 @@
             // txtMensaje
             // 
             this.txtMensaje.Location = new System.Drawing.Point(34, 130);
-            this.txtMensaje.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtMensaje.Margin = new System.Windows.Forms.Padding(2);
             this.txtMensaje.Multiline = true;
             this.txtMensaje.Name = "txtMensaje";
             this.txtMensaje.Size = new System.Drawing.Size(208, 65);
@@ -428,7 +428,7 @@
             // 
             this.lblCustomer.AutoSize = true;
             this.lblCustomer.Font = new System.Drawing.Font("Segoe Script", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCustomer.Location = new System.Drawing.Point(249, 15);
+            this.lblCustomer.Location = new System.Drawing.Point(277, 19);
             this.lblCustomer.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblCustomer.Name = "lblCustomer";
             this.lblCustomer.Size = new System.Drawing.Size(154, 44);
@@ -446,7 +446,7 @@
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(804, 593);
             this.Controls.Add(this.panel1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "frmCliente";
             this.Text = "frmCliente";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmCliente_FormClosing);

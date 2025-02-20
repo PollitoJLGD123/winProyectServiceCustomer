@@ -18,7 +18,7 @@ using System.Collections.Concurrent;
 
 namespace winProyectService
 {
-    public partial class frmCliente: Form
+    public partial class frmCliente : Form
     {
 
         IPHostEntry ipInfoHost;
@@ -33,19 +33,17 @@ namespace winProyectService
 
         private Dictionary<string, string> clientes_conectados = new Dictionary<string, string>();
 
-        private ManualResetEvent enviarInformacionCompleta = new ManualResetEvent(false);
+        classArchivo[] archivosRecibir;
 
-        classArchivo archivoRecibir;
+        classArchivo[] archivosEnviar;
 
-        classArchivo archivoEnviar;
+        int contador = 0;
 
         byte[] bufferRecibir;
 
-        private Queue<byte[]> colaArchivos = new Queue<byte[]>();
+        private Queue<classPackage> colaArchivos = new Queue<classPackage>();
         private bool recibiendoArchivo = false;
-
        
-
         public frmCliente()
         {
             InitializeComponent();
@@ -65,6 +63,8 @@ namespace winProyectService
                 SocketCliente.SendBufferSize = 8192;
 
                 SocketCliente.Connect(PuntoRemoto);
+
+                archivosEnviar = new classArchivo[5];
 
                 hiloRecibir = new Thread(recibirMensajes);
                 hiloRecibir.Start();
@@ -127,7 +127,7 @@ namespace winProyectService
             try
             {
                 bufferRecibir = new byte[1024];
-                int i = 0;
+                archivosRecibir = new classArchivo[5];
                 while (SocketCliente.Connected)
                 {
                     int bytesRead = SocketCliente.Receive(bufferRecibir);
@@ -150,9 +150,11 @@ namespace winProyectService
                                 procesarInformacion();
                                 break;
                             case "A":
+                                int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 1));
+
                                 lock (colaArchivos)
                                 {
-                                    colaArchivos.Enqueue(bufferRecibir.Take(bytesRead).ToArray());
+                                    colaArchivos.Enqueue(new classPackage(bufferRecibir.Take(bytesRead).ToArray(), orden));
                                 }
                                 if (!recibiendoArchivo)
                                 {
@@ -208,13 +210,15 @@ namespace winProyectService
 
         private void procesarInformacion()
         {
-            //string info_total = $"I:001J:0000002222:006:AE.TXT";
+            //string info_total = $"I:001J:0000002222:006:AE.TXT:3";
 
             string emisor = Encoding.UTF8.GetString(bufferRecibir, 2, 4);
             int size_archivo = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 10));
             int size_nombre = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 18, 3));
 
             string nombre = Encoding.UTF8.GetString(bufferRecibir, 22, size_nombre);
+
+            int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 23 + size_nombre, 1));
 
             string ruta_temp = $"E:/Probando/Recibir/{nombre}";
 
@@ -223,11 +227,11 @@ namespace winProyectService
                 File.Delete(ruta_temp); // Evitamos problemas de sobreescritura 
             }
 
-            archivoRecibir = new classArchivo(ruta_temp, new byte[size_archivo], 0);
+            archivosRecibir[orden] = new classArchivo(ruta_temp, new byte[size_archivo], 0, orden);
 
-            archivoRecibir.iniciarFlujo();
+            archivosRecibir[orden].iniciarFlujo();
 
-            Console.WriteLine("Tamaño del archivo: " + archivoRecibir.bytes.Length);
+            Console.WriteLine("Tamaño del archivo: " + archivosRecibir[orden].bytes.Length);
         }
 
         private void procesarArchivo()
@@ -236,34 +240,37 @@ namespace winProyectService
 
             try
             {
-                while (colaArchivos.Count > 0 || archivoRecibir.Avance < archivoRecibir.bytes.Length)
+                while (colaArchivos.Count > 0 || archivosRecibir.Any(a => a != null && a.Avance < a.bytes.Length))
                 {
-                    byte[] paquete;
+                    classPackage paqueteConOrden;
                     lock (colaArchivos)
                     {
                         if (colaArchivos.Count == 0)
                             continue;
-                        paquete = colaArchivos.Dequeue();
+                        paqueteConOrden = colaArchivos.Dequeue();
                     }
 
-                    int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
-                    int tamañoPaquete = paquete.Length - 7;
+                    byte[] paquete = paqueteConOrden.Paquete;
+                    int orden = paqueteConOrden.Orden;
+
+                    int bytesRestantes = archivosRecibir[orden].bytes.Length - archivosRecibir[orden].Avance;
+                    int tamañoPaquete = paquete.Length - 9;
 
                     int bytesAEscribir = Math.Min(bytesRestantes, tamañoPaquete);
 
                     if (bytesAEscribir > 0)
                     {
-                        archivoRecibir.EscribiendoArchivo.Write(paquete, 7, bytesAEscribir);
-                        archivoRecibir.Avance += bytesAEscribir;
+                        archivosRecibir[orden].EscribiendoArchivo.Write(paquete, 9, bytesAEscribir);
+                        archivosRecibir[orden].Avance += bytesAEscribir;
                     }
 
-                    UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
+                    UpdateRecibir((archivosRecibir[orden].Avance / (float)archivosRecibir[orden].bytes.Length) * 100, archivosRecibir[orden].Avance, archivosRecibir[orden].bytes.Length);
 
-                    if (archivoRecibir.Avance >= archivoRecibir.bytes.Length)
+                    if (archivosRecibir[orden].Avance >= archivosRecibir[orden].bytes.Length)
                     {
-                        archivoRecibir.EscribiendoArchivo.Flush(); 
-                        archivoRecibir.EscribiendoArchivo.Close();
-                        archivoRecibir.FlujoArchivoRecibir.Close();
+                        archivosRecibir[orden].EscribiendoArchivo.Flush();
+                        archivosRecibir[orden].EscribiendoArchivo.Close();
+                        archivosRecibir[orden].FlujoArchivoRecibir.Close();
                         UpdateUI($"Cliente {Encoding.UTF8.GetString(paquete, 2, 4)} envió un archivo exitosamente.");
                         Console.WriteLine("Archivo recibido correctamente");
                         break;
@@ -279,7 +286,6 @@ namespace winProyectService
                 recibiendoArchivo = false;
             }
         }
-
 
         private void UpdateRecibir(float cantidad, float bytes_actuales, float total)
         {
@@ -329,6 +335,11 @@ namespace winProyectService
             comboClientes.DataSource = new BindingSource(clientes_conectados, null);
             comboClientes.DisplayMember = "Value";
             comboClientes.ValueMember = "Key";
+
+            if (comboClientes.Items.Count > 0)
+            {
+                comboClientes.SelectedIndex = 0;
+            }
         }
 
         private void UpdateUI(string message)
@@ -416,14 +427,25 @@ namespace winProyectService
                     string rutita = txtRuta.Text.Trim();
                     byte[] bytesImagen = File.ReadAllBytes(rutita);
 
-                    archivoEnviar = new classArchivo(rutita, bytesImagen, 0);
+                    if(comboClientes.SelectedItem == null)
+        {
+                        MessageBox.Show("Selecciona un cliente primero");
+                        return;
+                    }
 
                     string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
 
-                    enviarInformacion();
+                    archivosEnviar[contador] = new classArchivo(rutita, bytesImagen, 0, contador);
 
-                    enviandoArch = new Thread(() => enviarArchivo(recipientId));
+                    enviarInformacion(recipientId);
+
+                    Console.WriteLine(contador);
+
+                    enviandoArch = new Thread(() => enviarArchivo(recipientId, contador));
+
                     enviandoArch.Start();
+
+                    contador++;
 
                 }
             }
@@ -433,17 +455,16 @@ namespace winProyectService
             }
         }
 
-        private void enviarInformacion()
+        private void enviarInformacion(string recipientId)
         {
-            string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
 
-            string size_archivo = archivoEnviar.bytes.Length.ToString("D10");
+            string size_archivo = archivosEnviar[contador].bytes.Length.ToString("D10");
 
-            string nombre = Path.GetFileName(archivoEnviar.Nombre);
+            string nombre = Path.GetFileName(archivosEnviar[contador].Nombre);
 
             string size_nombre = nombre.Length.ToString("D3");
 
-            string info_total = $"I:{recipientId}:{size_archivo}:{size_nombre}:{nombre}";
+            string info_total = $"I:{recipientId}:{size_archivo}:{size_nombre}:{nombre}:{contador}";
 
             Console.WriteLine(info_total);
 
@@ -452,24 +473,27 @@ namespace winProyectService
             SocketCliente.Send(bufferInfo);
         }
 
-        private void enviarArchivo(string recipientId)
+        private void enviarArchivo(string recipientId,int conta)
         {
             try
             {
-                byte[] cabeza = Encoding.UTF8.GetBytes($"A:{recipientId}:"); // A:aea1:
-                int tamaño_imagen = archivoEnviar.bytes.Length;
 
-                int cantidad_exacta = 1017 * ((int)(tamaño_imagen / 1017));
+                int contador1 = conta - 1;
 
-                for (int i = 0; i < tamaño_imagen; i += 1017)
+                byte[] cabeza = Encoding.UTF8.GetBytes($"A:{recipientId}:{contador1}:"); // A:aea1:1:
+                int tamaño_imagen = archivosEnviar[contador1].bytes.Length;
+
+                int cantidad_exacta = 1015 * ((int)(tamaño_imagen / 1015));
+
+                for (int i = 0; i < tamaño_imagen; i += 1015)
                 {
-                    int size = Math.Min(1017, tamaño_imagen - i);
-                    byte[] tramaEnviar = new byte[7 + size];
+                    int size = Math.Min(1015, tamaño_imagen - i);
+                    byte[] tramaEnviar = new byte[9 + size];
 
-                    archivoEnviar.Avance += size;
+                    archivosEnviar[contador1].Avance += size;
 
-                    Array.Copy(cabeza, 0, tramaEnviar, 0, 7);
-                    Array.Copy(archivoEnviar.bytes, i, tramaEnviar, 7, size);
+                    Array.Copy(cabeza, 0, tramaEnviar, 0, 9);
+                    Array.Copy(archivosEnviar[contador1].bytes, i, tramaEnviar, 9, size);
 
                     int totalEnviado = 0;
                     while (totalEnviado < tramaEnviar.Length)
@@ -481,9 +505,9 @@ namespace winProyectService
 
                     if (i == 0)
                     {
-                        if (tamaño_imagen < 1011)
+                        if (tamaño_imagen < 1015)
                         {
-                            UpdateEnvio(100, archivoEnviar.Avance, tamaño_imagen);
+                            UpdateEnvio(100, archivosEnviar[contador1].Avance, tamaño_imagen);
                         }
                         else
                         {
@@ -493,7 +517,7 @@ namespace winProyectService
                     }
                     else
                     {
-                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivoEnviar.Avance, tamaño_imagen);
+                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[contador1].Avance, tamaño_imagen);
                     }
                 }
             }

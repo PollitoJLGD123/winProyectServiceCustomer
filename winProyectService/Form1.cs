@@ -216,6 +216,8 @@ namespace winProyectService
 
                     string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
 
+                    // M:jdn1: aaaaaaaaaaaaaa
+
                     if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
                     {
                         byte[] nombreEnvia = Encoding.UTF8.GetBytes(clientId);
