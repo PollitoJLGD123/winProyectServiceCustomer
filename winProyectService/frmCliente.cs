@@ -220,7 +220,7 @@ namespace winProyectService
 
             int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 23 + size_nombre, 1));
 
-            string ruta_temp = $"E:/Probando/Recibir/{nombre}";
+            string ruta_temp = $"D:/copia_reed_{nombre}";
 
             if (File.Exists(ruta_temp))
             {
