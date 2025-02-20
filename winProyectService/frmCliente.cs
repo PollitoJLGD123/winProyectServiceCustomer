@@ -37,6 +37,7 @@ namespace winProyectService
 
         classArchivo[] archivosEnviar;
 
+        int number = 0;
         int contador = 0;
 
         byte[] bufferRecibir;
@@ -462,6 +463,11 @@ namespace winProyectService
 
             string nombre = Path.GetFileName(archivosEnviar[contador].Nombre);
 
+            string name_real = nombre.Split('.')[0];
+            string extension = nombre.Split('.')[1];
+
+            nombre = $"{name_real}{number}.{extension}";
+
             string size_nombre = nombre.Length.ToString("D3");
 
             string info_total = $"I:{recipientId}:{size_archivo}:{size_nombre}:{nombre}:{contador}";
@@ -469,6 +475,8 @@ namespace winProyectService
             Console.WriteLine(info_total);
 
             byte[] bufferInfo = Encoding.UTF8.GetBytes(info_total);
+
+            number++;
 
             SocketCliente.Send(bufferInfo);
         }
