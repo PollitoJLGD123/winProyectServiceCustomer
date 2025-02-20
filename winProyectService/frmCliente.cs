@@ -444,9 +444,9 @@ namespace winProyectService
 
                     enviandoArch = new Thread(() => enviarArchivo(recipientId, contador));
 
-                    enviandoArch.Start();
-
                     contador++;
+
+                    enviandoArch.Start();
 
                 }
             }
@@ -478,7 +478,11 @@ namespace winProyectService
 
             number++;
 
-            SocketCliente.Send(bufferInfo);
+            Thread procesoEnviarInformacion = new Thread(() =>
+            {
+                SocketCliente.Send(bufferInfo);
+            });
+            procesoEnviarInformacion.Start();
         }
 
         private void enviarArchivo(string recipientId,int conta)
