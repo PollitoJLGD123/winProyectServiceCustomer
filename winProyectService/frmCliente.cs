@@ -28,6 +28,7 @@ namespace winProyectService
         private string clientId;
 
         private Thread hiloRecibir;
+        private Thread enviandoArch;
 
         private Dictionary<string, string> clientes_conectados = new Dictionary<string, string>();
 
@@ -231,16 +232,6 @@ namespace winProyectService
                 int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
                 int tamañoPaquete = bufferRecibir.Length - 7; 
 
-                Console.WriteLine($"Bytes restantes: {bytesRestantes}");
-                Console.WriteLine($"Avance actual: {archivoRecibir.Avance}");
-                Console.WriteLine($"Tamaño de paquete recibido: {tamañoPaquete}");
-
-                if (tamañoPaquete <= 0)
-                {
-                    Console.WriteLine("Error: Paquete recibido es demasiado pequeño.");
-                    return;
-                }
-
                 int bytesAEscribir = Math.Min(bytesRestantes, tamañoPaquete);
 
                 archivoRecibir.EscribiendoArchivo.Write(bufferRecibir, 7, bytesAEscribir);
@@ -397,11 +388,14 @@ namespace winProyectService
                     string rutita = txtRuta.Text.Trim();
                     byte[] bytesImagen = File.ReadAllBytes(rutita);
 
-                    archivoEnviar = new classArchivo(rutita, bytesImagen,0);
+                    archivoEnviar = new classArchivo(rutita, bytesImagen, 0);
+
+                    string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
 
                     enviarInformacion();
 
-                    enviarArchivo();
+                    enviandoArch = new Thread(() => enviarArchivo(recipientId));
+                    enviandoArch.Start();
 
                 }
             }
@@ -430,22 +424,16 @@ namespace winProyectService
             SocketCliente.Send(bufferInfo);
         }
 
-        private void enviarArchivo()
+        private void enviarArchivo(string recipientId)
         {
             try
             {
-                string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
-
-                byte[] cabeza = ASCIIEncoding.UTF8.GetBytes($"A:{recipientId}:"); // A:aea1:
-
+                byte[] cabeza = Encoding.UTF8.GetBytes($"A:{recipientId}:"); // A:aea1:
                 int tamaño_imagen = archivoEnviar.bytes.Length;
 
-                int cantidad_exacta = 1017 * ((int)(tamaño_imagen / 1017));
-
-                for (int i = 0; i < tamaño_imagen; i += 1017)  
+                for (int i = 0; i < tamaño_imagen; i += 1017)
                 {
-                    int size = Math.Min(1017, archivoEnviar.bytes.Length - i); 
-
+                    int size = Math.Min(1017, tamaño_imagen - i);
                     byte[] tramaEnviar = new byte[7 + size];
 
                     archivoEnviar.Avance += size;
@@ -461,26 +449,9 @@ namespace winProyectService
                         totalEnviado += enviado;
                     }
 
-
-                    if (i == 0)
-                    {
-                        if (tamaño_imagen < 1017)
-                        {
-                            UpdateEnvio(100, archivoEnviar.Avance, tamaño_imagen);
-                        }
-                        else
-                        {
-                            UpdateEnvio(0, 0, tamaño_imagen);
-                        }
-
-                    }
-                    else
-                    {
-                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivoEnviar.Avance, tamaño_imagen);
-                    }
-
+                    float progreso = ((float)archivoEnviar.Avance / tamaño_imagen) * 100;
+                    UpdateEnvio(progreso, archivoEnviar.Avance, tamaño_imagen);
                 }
-
             }
             catch (Exception ex)
             {
