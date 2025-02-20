@@ -182,8 +182,6 @@ namespace winProyectService
                 {
                     int bytesRead = cliente_socket.Receive(buffer); // solo devuelve cuando se desconecta el cliente
 
-                    Console.WriteLine("bytesRead: " + bytesRead);
-
                     if (bytesRead == 0) break; //cliente se conecta y no envia nada
 
                     string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
@@ -194,7 +192,6 @@ namespace winProyectService
 
                         Array.Copy(nombreEnvia, 0, buffer, 2, 4);
 
-                        Console.WriteLine("Enviando mensaje a: " + id_recibe + " Y Se envio correctamente VEZ: " + i);
                         socket_recibe.Send(buffer, bytesRead, SocketFlags.None);
                         i++;
                     }

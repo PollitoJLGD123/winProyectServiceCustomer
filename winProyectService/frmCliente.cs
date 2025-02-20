@@ -199,12 +199,6 @@ namespace winProyectService
         {
             //string info_total = $"I:001J:0000002222:006:AE.TXT";
 
-            if (bufferRecibir.Length < 22)
-            {
-                Console.WriteLine("Error: Buffer demasiado pequeño para procesar la información.");
-                return;
-            }
-
             string emisor = Encoding.UTF8.GetString(bufferRecibir, 2, 4);
             int size_archivo = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 10));
             int size_nombre = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 18, 3));
@@ -243,8 +237,8 @@ namespace winProyectService
                 {
                     archivoRecibir.EscribiendoArchivo.Close();
                     archivoRecibir.FlujoArchivoRecibir.Close();
-                    UpdateUI($"Cliente {archivoRecibir.Nombre} envió un archivo exitosamente.");
-                    Console.WriteLine("Archivo recibido correctamente y cerrado.");
+                    UpdateUI($"Cliente {ASCIIEncoding.UTF8.GetString(bufferRecibir,2,4)} envió un archivo exitosamente.");
+                    Console.WriteLine("Archivo recibido correctamente");
                 }
             }
             catch (Exception ex)
