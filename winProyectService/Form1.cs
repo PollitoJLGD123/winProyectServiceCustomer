@@ -30,16 +30,9 @@ namespace winProyectService
 
         private ConcurrentDictionary<string, Socket> listaClientes = new ConcurrentDictionary<string, Socket>();
 
-        ConcurrentQueue<(Socket, byte[], int)> colaMensajes = new ConcurrentQueue<(Socket, byte[], int)>();
-        AutoResetEvent señalCola = new AutoResetEvent(false);
-
         public Form1()
         {
             InitializeComponent();
-
-            Thread hiloEnvio = new Thread(procesarColaEnvio);
-            hiloEnvio.IsBackground = true;
-            hiloEnvio.Start();
 
             comboDirecciones.Items.Clear();
             ipInfoHost = Dns.GetHostEntry(Dns.GetHostName());
@@ -78,27 +71,6 @@ namespace winProyectService
             }
         }
 
-        private void procesarColaEnvio()
-        {
-            while (true)
-            {
-                señalCola.WaitOne(); // Espera hasta que haya mensajes en la cola
-
-                while (colaMensajes.TryDequeue(out var mensaje))
-                {
-                    try
-                    {
-                        mensaje.Item1.Send(mensaje.Item2, mensaje.Item3, SocketFlags.None);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error al enviar mensaje: {ex.Message}");
-                    }
-                }
-            }
-        }
-
-
         private void empezarServidor(int puerto, string ip)
         {
             try
@@ -108,9 +80,6 @@ namespace winProyectService
                 PuntoFinal = new IPEndPoint(ipDireccion, puerto);
 
                 SocketEscucha = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-                SocketEscucha.ReceiveBufferSize = 8192;
-                SocketEscucha.SendBufferSize = 8192;
 
                 SocketEscucha.Bind(PuntoFinal);
 
@@ -222,10 +191,9 @@ namespace winProyectService
                     {
                         byte[] nombreEnvia = Encoding.UTF8.GetBytes(clientId);
 
-                        Array.Copy(nombreEnvia, 0, buffer, 2, 4);
+                        Array.Copy(nombreEnvia, 0, buffer, 2, 4); //A:jah1:jdhdbhdbh
 
-                        colaMensajes.Enqueue((socket_recibe, buffer.Take(bytesRead).ToArray(), bytesRead));
-                        señalCola.Set(); 
+                        socket_recibe.Send(buffer, bytesRead, SocketFlags.None);
                     }
                     else
                     {
