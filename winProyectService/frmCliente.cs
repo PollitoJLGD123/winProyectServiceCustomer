@@ -119,11 +119,23 @@ namespace winProyectService
                 {
                     if (SocketCliente != null && SocketCliente.Connected && comboClientes.SelectedItem != null)
                     {
+                        byte[] buferMensaje = Enumerable.Repeat((byte)'@', 1024).ToArray();
+
                         string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
                         string texto = txtMensaje.Text.Trim();
-                        string fullMessage = $"M:{recipientId}:{texto}";
+                        int size = texto.Length;
+                        string fullMessage = $"M:{recipientId}:{size.ToString("D3")}:{texto}";
+
+                        Console.WriteLine("Mensaje a enviar: " + fullMessage);
+
                         byte[] msgBuffer = Encoding.UTF8.GetBytes(fullMessage);
-                        SocketCliente.Send(msgBuffer);
+
+                        Array.Copy(msgBuffer, 0, buferMensaje, 0, msgBuffer.Length);
+
+                        SocketCliente.Send(buferMensaje);
+
+                        Console.WriteLine("Se envio");
+
                         UpdateUI($"Yo: {texto} (para {comboClientes.Text})");
                         txtMensaje.Text = "";
                     }
@@ -148,8 +160,8 @@ namespace winProyectService
                 archivosRecibir = new classArchivo[5];
                 while (SocketCliente.Connected)
                 {
-                    int bytesRead = SocketCliente.Receive(bufferRecibir);
-                    if (bytesRead > 0)
+                    int bytesRead = SocketCliente.Receive(bufferRecibir); 
+                    if (bytesRead >= 1024)
                     {
                         string tipo_mensaje = Encoding.UTF8.GetString(bufferRecibir, 0, 1);
                         
@@ -214,6 +226,8 @@ namespace winProyectService
         {
             string message = Encoding.UTF8.GetString(bufferRecibir, 0, cantidad);
             UpdateClientList(message.Substring(2));
+            //Console.WriteLine("Clientes conectados: " + message.Substring(2));
+            //C:jdh1,oii1,ddd1@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         }
 
         private void procesarID(int cantidad)
@@ -225,8 +239,14 @@ namespace winProyectService
         private void procesarMensaje(int cantidad)
         {
             string message = Encoding.UTF8.GetString(bufferRecibir, 0, cantidad);
+            
             string emisor = message.Substring(2, 4);
-            string message_real = message.Substring(7);
+
+            //M:0123:004:Hola@@@@@@@@@@@@@@@@@@@@@
+
+            int size_leer = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir,7,3));
+
+            string message_real = message.Substring(11,size_leer);
 
             UpdateUI($"{clientes_conectados[emisor]}: {message_real}");
         }
@@ -291,7 +311,13 @@ namespace winProyectService
 
                     UpdateUI($"Cliente {Encoding.UTF8.GetString(bufferRecibir, 2, 4)} envió un archivo exitosamente.");
 
-                    SocketCliente.Send(Encoding.UTF8.GetBytes($"R:{sendId}:{orden}"));
+                    byte[] tramaSeEnvio = Encoding.UTF8.GetBytes($"R:{sendId}:{orden}");
+
+                    byte[] tramaEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
+
+                    Array.Copy(tramaSeEnvio, 0, tramaEnviar, 0, tramaSeEnvio.Length);
+
+                    SocketCliente.Send(tramaEnviar);
                 }
             }
             catch (Exception ex)
@@ -381,17 +407,20 @@ namespace winProyectService
 
         private void UpdateClientList(string clientListString)
         {
+            //Console.WriteLine("Clientes conectados: " + message.Substring(2));
+            //C:jdh1,oii1,ddd1@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
             string[] clientIds = clientListString.Split(',');
             clientes_conectados.Clear();
             foreach (string id in clientIds)
             {
                 if (id != clientId)
                 {
-                    clientes_conectados.Add(id, $"Cliente {id.Substring(0, 4)}");
+                    clientes_conectados.Add(id.Substring(0, 4), $"Cliente {id.Substring(0, 4)}");
                 }
                 else
                 {
-                    clientId = id;
+                    clientId = id.Substring(0, 4);
                 }
             }
             UpdateClientList();
@@ -529,6 +558,7 @@ namespace winProyectService
 
         private void enviarInformacion(string recipientId)
         {
+            byte[] bufferInformacionEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
 
             string size_archivo = archivosEnviar[contador].bytes.Length.ToString("D10");
 
@@ -543,13 +573,13 @@ namespace winProyectService
 
             string info_total = $"I:{recipientId}:{size_archivo}:{size_nombre}:{nombre}:{contador}";
 
-            Console.WriteLine(info_total);
-
             byte[] bufferInfo = Encoding.UTF8.GetBytes(info_total);
+
+            Array.Copy(bufferInfo, 0, bufferInformacionEnviar, 0, bufferInfo.Length);
 
             number++;
 
-            SocketCliente.Send(bufferInfo);
+            SocketCliente.Send(bufferInformacionEnviar);
         }
 
         private void enviarArchivo(string recipientId,int conta)
@@ -564,7 +594,7 @@ namespace winProyectService
                 for (int i = 0; i < tamaño_imagen; i += 1015)
                 {
                     int size = Math.Min(1015, tamaño_imagen - i);
-                    byte[] tramaEnviar = new byte[9 + size];
+                    byte[] tramaEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
 
                     archivosEnviar[conta].Avance += size;
 

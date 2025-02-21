@@ -183,21 +183,24 @@ namespace winProyectService
 
                     if (bytesRead == 0) break; //cliente se conecta y no envia nada
 
-                    string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
-
-                    // M:jdn1: aaaaaaaaaaaaaa
-
-                    if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
+                    if(bytesRead >= 1024)
                     {
-                        byte[] nombreEnvia = Encoding.UTF8.GetBytes(clientId);
+                        string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
 
-                        Array.Copy(nombreEnvia, 0, buffer, 2, 4); //A:jah1:jdhdbhdbh
+                        // M:jdn1: aaaaaaaaaaaaaa
 
-                        socket_recibe.Send(buffer, bytesRead, SocketFlags.None);
-                    }
-                    else
-                    {
-                        UpdateUI($"El cliente {id_recibe} no está conectado");
+                        if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
+                        {
+                            byte[] nombreEnvia = Encoding.UTF8.GetBytes(clientId);
+
+                            Array.Copy(nombreEnvia, 0, buffer, 2, 4); //A:jah1:jdhdbhdbh
+
+                            socket_recibe.Send(buffer);
+                        }
+                        else
+                        {
+                            UpdateUI($"El cliente {id_recibe} no está conectado");
+                        }
                     }
 
                 }
@@ -220,15 +223,26 @@ namespace winProyectService
 
         private void enviarID(string id, Socket cliente_socket)
         {
+            byte[] buffer = Enumerable.Repeat((byte)'@', 1024).ToArray();
             byte[] idBuffer = Encoding.UTF8.GetBytes("N:" + id);
-            cliente_socket.Send(idBuffer);
+
+            Array.Copy(idBuffer, 0, buffer, 0, idBuffer.Length);
+            cliente_socket.Send(buffer);
         }
 
         private void enviarClientes(Socket cliente_socket)
         {
+            byte[] buffer = Enumerable.Repeat((byte)'@', 1024).ToArray();
             string clientes_enlazados = "C:" + string.Join(",", listaClientes.Keys);
+
             byte[] listBuffer = Encoding.UTF8.GetBytes(clientes_enlazados);
-            cliente_socket.Send(listBuffer);
+
+            //C:jdn1,jah1,jdh1,jdh1,jdh1
+            //@@@@@@@@@@@@@@@
+
+            Array.Copy(listBuffer, 0, buffer, 0, listBuffer.Length);
+
+            cliente_socket.Send(buffer);
         }
 
         private void reenviarClientes(bool estado, Color color)
