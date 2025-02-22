@@ -99,7 +99,6 @@ namespace winProyectService
             }
         }
 
-
         private void btnEnviarMensaje_Click(object sender, EventArgs e)
         {
             try
@@ -164,7 +163,9 @@ namespace winProyectService
                     if (bytesRead >= 1024)
                     {
                         string tipo_mensaje = Encoding.UTF8.GetString(bufferRecibir, 0, 1);
-                        
+
+                        Console.WriteLine("Tipo de mensaje: " + tipo_mensaje);
+
                         switch (tipo_mensaje)
                         {
                             case "C":
@@ -191,7 +192,6 @@ namespace winProyectService
                                 break;
                         }
                     }
-                    
                 }
             }
             catch (SocketException ex)
@@ -270,22 +270,21 @@ namespace winProyectService
                 File.Delete(ruta_temp); // Evitamos problemas de sobreescritura 
             }
 
-            //////     5 archivos a enviarr 
-            ///        contador =  
-            ///        se desocupa el contador 1
-
             archivosRecibir[orden] = new classArchivo(ruta_temp, new byte[size_archivo], 0, orden);
 
             archivosRecibir[orden].iniciarFlujo();
 
             Console.WriteLine("Tamaño del archivo: " + archivosRecibir[orden].bytes.Length);
+            Console.WriteLine("Info del Archivo que llega al cliente: " + ASCIIEncoding.UTF8.GetString(bufferRecibir));
         }
 
         private void procesarArchivo()
         {
             try
             {
-                //A:001J:1:
+                
+                Console.WriteLine("Trama que se recibe: " + ASCIIEncoding.UTF8.GetString(bufferRecibir));
+
                 int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 1));
 
                 int bytesRestantes = archivosRecibir[orden].bytes.Length - archivosRecibir[orden].Avance;
@@ -457,7 +456,7 @@ namespace winProyectService
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<string>(UpdateUI), id);
+                Invoke(new Action<string>(UpdateName), id);
                 return;
             }
             lblCustomer.Text = "Cliente " + id;
@@ -601,14 +600,6 @@ namespace winProyectService
                     Array.Copy(cabeza, 0, tramaEnviar, 0, 9);
                     Array.Copy(archivosEnviar[conta].bytes, i, tramaEnviar, 9, size);
 
-                    //int totalEnviado = 0;
-                    /*while (totalEnviado < tramaEnviar.Length)
-                    {
-                        int enviado = SocketCliente.Send(tramaEnviar, totalEnviado, tramaEnviar.Length - totalEnviado, SocketFlags.None);
-                        if (enviado == 0) throw new Exception("Conexión cerrada durante el envío");
-                        totalEnviado += enviado;
-                    }*/
-
                     SocketCliente.Send(tramaEnviar);
 
                     if (i == 0)
@@ -627,6 +618,7 @@ namespace winProyectService
                     {
                         UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[conta].Avance, tamaño_imagen,conta);
                     }
+                    Console.WriteLine("Trama que se envia al cliente del archivo: " + ASCIIEncoding.UTF8.GetString(tramaEnviar));
                 }
             }
             catch (Exception ex)

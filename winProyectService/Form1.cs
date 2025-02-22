@@ -187,7 +187,7 @@ namespace winProyectService
                     {
                         string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
 
-                        // M:jdn1: aaaaaaaaaaaaaa
+                        Console.WriteLine($"Info que llego al servidor: " + ASCIIEncoding.UTF8.GetString(buffer));
 
                         if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
                         {
