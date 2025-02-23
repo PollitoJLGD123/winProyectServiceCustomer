@@ -275,7 +275,7 @@ namespace winProyectService
             archivosRecibir[orden].iniciarFlujo();
 
             Console.WriteLine("Tamaño del archivo: " + archivosRecibir[orden].bytes.Length);
-            Console.WriteLine("Info del Archivo que llega al cliente: " + ASCIIEncoding.UTF8.GetString(bufferRecibir));
+            Console.WriteLine("Info del Archivo que llega al cliente: " + ASCIIEncoding.UTF8.GetString(bufferRecibir, 0,24 +  size_nombre));
         }
 
         private void procesarArchivo()
@@ -283,7 +283,9 @@ namespace winProyectService
             try
             {
                 
-                Console.WriteLine("Trama que se recibe: " + ASCIIEncoding.UTF8.GetString(bufferRecibir));
+                Console.WriteLine("Trama que se recibe aca en el cliente (5 primeros): " + ASCIIEncoding.UTF8.GetString(bufferRecibir,0,10));
+                Console.WriteLine("Trama que se recibe aca en el cliente (5 ultimos): " + ASCIIEncoding.UTF8.GetString(bufferRecibir, 1014, 10));
+
 
                 int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 1));
 
@@ -618,7 +620,9 @@ namespace winProyectService
                     {
                         UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[conta].Avance, tamaño_imagen,conta);
                     }
-                    Console.WriteLine("Trama que se envia al cliente del archivo: " + ASCIIEncoding.UTF8.GetString(tramaEnviar));
+                    Console.WriteLine("Trama que se envia al cliente del archivo(5 primeros): " + ASCIIEncoding.UTF8.GetString(tramaEnviar,0,10));
+                    Console.WriteLine("Trama que se envia al cliente del archivo(5 ultimos): " + ASCIIEncoding.UTF8.GetString(tramaEnviar, 1014, 10));
+
                 }
             }
             catch (Exception ex)

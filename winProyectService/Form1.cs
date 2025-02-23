@@ -174,7 +174,7 @@ namespace winProyectService
 
             reenviarClientes(true, Color.Green);
 
-            byte[] buffer = new byte[1024];
+            byte[] buffer = Enumerable.Repeat((byte)'@', 1024).ToArray();
             try
             {
                 while (true)
@@ -183,11 +183,13 @@ namespace winProyectService
 
                     if (bytesRead == 0) break; //cliente se conecta y no envia nada
 
-                    if(bytesRead >= 1024)
+                    Console.WriteLine($"Bytes leidos: {bytesRead}");
+                    Console.WriteLine("Info que llego al servidor (5 primer): " + ASCIIEncoding.UTF8.GetString(buffer, 0, 10));
+                    Console.WriteLine("Info que llego al servidor (5 ultimos): " + ASCIIEncoding.UTF8.GetString(buffer, 1014, 10));
+
+                    if (bytesRead >= 1024)
                     {
                         string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
-
-                        Console.WriteLine($"Info que llego al servidor: " + ASCIIEncoding.UTF8.GetString(buffer));
 
                         if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
                         {
@@ -208,7 +210,6 @@ namespace winProyectService
             catch (Exception ex)
             {
                 UpdateUI($"Error en la comunicación con el cliente: {ex.Message}");
-                MessageBox.Show(this, ex.Message);
             }
             finally
             {
