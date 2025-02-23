@@ -41,6 +41,8 @@ namespace winProyectService
         int contador = 0;
         int number = 0;
 
+        int aea = 0;
+
         byte[] bufferRecibir;
 
         private Dictionary<int, bool> disponibles = new Dictionary<int, bool>();
@@ -273,16 +275,12 @@ namespace winProyectService
             archivosRecibir[orden] = new classArchivo(ruta_temp, new byte[size_archivo], 0, orden);
 
             archivosRecibir[orden].iniciarFlujo();
-
-            Console.WriteLine("Tamaño del archivo: " + archivosRecibir[orden].bytes.Length);
-            Console.WriteLine("Info del Archivo que llega al cliente: " + ASCIIEncoding.UTF8.GetString(bufferRecibir, 0,24 +  size_nombre));
         }
 
         private void procesarArchivo()
         {
             try
             {
-
                 int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 1));
 
                 int bytesRestantes = archivosRecibir[orden].bytes.Length - archivosRecibir[orden].Avance;
@@ -292,12 +290,12 @@ namespace winProyectService
 
                 int bytesAEscribir = Math.Min(bytesRestantes, tamañoPaquete);
 
-                if (bytesAEscribir > 0)
+                if (bytesAEscribir > 0)  
                 {
                     archivosRecibir[orden].EscribiendoArchivo.Write(bufferRecibir, 9, bytesAEscribir);
                     archivosRecibir[orden].Avance += bytesAEscribir;
 
-                    if(bytesAEscribir > 1015)
+                    if(bytesAEscribir >= 1015) // 
                     {
                         Console.WriteLine("Trama que se recibe aca en el cliente (5 primeros): " + ASCIIEncoding.UTF8.GetString(bufferRecibir, 0, 10));
                         Console.WriteLine("Trama que se recibe aca en el cliente (5 ultimos): " + ASCIIEncoding.UTF8.GetString(bufferRecibir, 1014, 10));

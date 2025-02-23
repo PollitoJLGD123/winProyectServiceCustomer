@@ -183,10 +183,6 @@ namespace winProyectService
 
                     if (bytesRead == 0) break; //cliente se conecta y no envia nada
 
-                    Console.WriteLine($"Bytes leidos: {bytesRead}");
-                    Console.WriteLine("Info que llego al servidor (5 primer): " + ASCIIEncoding.UTF8.GetString(buffer, 0, 10));
-                    Console.WriteLine("Info que llego al servidor (5 ultimos): " + ASCIIEncoding.UTF8.GetString(buffer, 1014, 10));
-
                     if (bytesRead >= 1024)
                     {
                         string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
