@@ -190,20 +190,19 @@ namespace winProyectService
 
                         string tipo = Encoding.ASCII.GetString(buffer, 0, 1);
 
-                        int contador = Convert.ToInt32(Encoding.UTF8.GetString(buffer, 9, 7));
-
-                        Console.WriteLine("Trama que se recibe servidor (5 primeros): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(buffer, 0, 10));
-                        Console.WriteLine("Trama que se recibe servidor (5 ultimos): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(buffer, 1014, 10));
-
-
                         if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
                         {
                             byte[] nombreEnvia = Encoding.UTF8.GetBytes(clientId);
 
                             if(tipo == "A")
                             {
+
+                                int contador = Convert.ToInt32(Encoding.UTF8.GetString(buffer, 9, 7));
                                 byte[] ack = Enumerable.Repeat((byte)'K', 1024).ToArray();
                                 cliente_socket.Send(ack);
+
+                                Console.WriteLine("Trama que se recibe servidor (5 primeros): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(buffer, 0, 10));
+                                Console.WriteLine("Trama que se recibe servidor (5 ultimos): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(buffer, 1014, 10));
                             }
 
                             Array.Copy(nombreEnvia, 0, buffer, 2, 4); //A:jah1:jdhdbhdbh
