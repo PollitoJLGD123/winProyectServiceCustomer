@@ -188,8 +188,10 @@ namespace winProyectService
                     {
                         string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
 
-                        Console.WriteLine("Trama que se recibe aca en el cliente (5 primeros): " + ASCIIEncoding.UTF8.GetString(buffer, 0, 10));
-                        Console.WriteLine("Trama que se recibe aca en el cliente (5 ultimos): " + ASCIIEncoding.UTF8.GetString(buffer, 1014, 10));
+                        int contador = Convert.ToInt32(Encoding.UTF8.GetString(buffer, 9, 7));
+
+                        Console.WriteLine("Trama que se recibe aca en el cliente (5 primeros): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(buffer, 0, 10));
+                        Console.WriteLine("Trama que se recibe aca en el cliente (5 ultimos): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(buffer, 1014, 10));
 
                         if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
                         {
