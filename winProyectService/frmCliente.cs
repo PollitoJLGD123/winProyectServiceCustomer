@@ -47,6 +47,8 @@ namespace winProyectService
 
         private Dictionary<int, bool> disponibles = new Dictionary<int, bool>();
 
+        private ManualResetEvent ackEvent = new ManualResetEvent(false);
+
         public frmCliente()
         {
             InitializeComponent();
@@ -76,7 +78,7 @@ namespace winProyectService
         {
             try
             {
-                ipDireccion = IPAddress.Parse("192.168.0.107");
+                ipDireccion = IPAddress.Parse(ip);
                 ipInfoHost = Dns.GetHostEntry(ipDireccion);
                 PuntoRemoto = new IPEndPoint(ipDireccion, puerto);
 
@@ -166,6 +168,8 @@ namespace winProyectService
                     {
                         string tipo_mensaje = Encoding.UTF8.GetString(bufferRecibir, 0, 1);
 
+                        //"ACK"
+
                         switch (tipo_mensaje)
                         {
                             case "C":
@@ -186,6 +190,9 @@ namespace winProyectService
                             case "R":
                                 int indice = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 1));
                                 UpdateDiccionario(indice);
+                                break;
+                            case "K":
+                                ackEvent.Set();
                                 break;
                             default:
                                 MessageBox.Show("Mensaje no reconocido");
@@ -550,7 +557,7 @@ namespace winProyectService
 
                         enviarInformacion(recipientId);
 
-                        enviandoArch = new Thread(() => enviarArchivo(recipientId, contador));
+                        Thread enviandoArch = new Thread( () =>enviarArchivo(recipientId, contador));
                         enviandoArch.Start();
                     }
                     else
@@ -598,12 +605,11 @@ namespace winProyectService
             {
                 int contador = 0;
 
-                //byte[] cabeza = Encoding.UTF8.GetBytes($"A:{recipientId}:{conta}:{contador.ToString("D7")}:"); // A:aea1:1:0000222:
                 int tamaño_imagen = archivosEnviar[conta].bytes.Length;
 
                 int cantidad_exacta = 1007 * ((int)(tamaño_imagen / 1007));
 
-                for (int i = 0; i < tamaño_imagen; i += 1007) // 2050 i = 0 i = 1015 i = 2030
+                for (int i = 0; i < tamaño_imagen; i += 1007)
                 {
                     byte[] cabeza = Encoding.UTF8.GetBytes($"A:{recipientId}:{conta}:{contador.ToString("D7")}:");
                     int size = Math.Min(1007, tamaño_imagen - i);
@@ -616,7 +622,35 @@ namespace winProyectService
 
                     SocketCliente.Send(tramaEnviar);
 
-                    if(i + size == tamaño_imagen)
+                    int intentos = 0;
+                    const int maxIntentos = 5;
+
+                    while (intentos < maxIntentos)
+                    {
+                        ackEvent.Reset(); // Resetea el evento antes de enviar
+                        SocketCliente.Send(tramaEnviar);
+                        Console.WriteLine($"Enviando trama {contador}, intento {intentos + 1}");
+
+                        if (ackEvent.WaitOne(2000)) // Espera hasta 2 segundos por el ACK
+                        {
+                            Console.WriteLine("ACK recibido, continuando...");
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("ACK no recibido, reintentando...");
+                        }
+
+                        intentos++;
+                    }
+
+                    if (intentos == maxIntentos)
+                    {
+                        Console.WriteLine($"Error: No se recibió ACK después de {maxIntentos} intentos.");
+                        break;
+                    }
+
+                    if (i + size == tamaño_imagen)
                     {
                         Console.WriteLine("Trama ultima que se enviaaaa: " + ASCIIEncoding.UTF8.GetString(tramaEnviar));
                     }
@@ -643,7 +677,6 @@ namespace winProyectService
                         UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[conta].Avance, tamaño_imagen, conta);
                     }
                     contador++;
-
                 }
             }
             catch (Exception ex)
