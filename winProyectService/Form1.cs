@@ -174,7 +174,8 @@ namespace winProyectService
 
             reenviarClientes(true, Color.Green);
 
-            byte[] buffer = Enumerable.Repeat((byte)'@', 1024).ToArray();
+            byte[] buffer = new byte[1024];
+
             try
             {
                 while (true)
@@ -186,6 +187,9 @@ namespace winProyectService
                     if (bytesRead >= 1024)
                     {
                         string id_recibe = Encoding.ASCII.GetString(buffer, 2, 4);
+
+                        Console.WriteLine("Trama que se recibe aca en el cliente (5 primeros): " + ASCIIEncoding.UTF8.GetString(buffer, 0, 10));
+                        Console.WriteLine("Trama que se recibe aca en el cliente (5 ultimos): " + ASCIIEncoding.UTF8.GetString(buffer, 1014, 10));
 
                         if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
                         {

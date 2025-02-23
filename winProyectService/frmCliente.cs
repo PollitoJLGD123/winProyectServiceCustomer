@@ -166,8 +166,6 @@ namespace winProyectService
                     {
                         string tipo_mensaje = Encoding.UTF8.GetString(bufferRecibir, 0, 1);
 
-                        Console.WriteLine("Tipo de mensaje: " + tipo_mensaje);
-
                         switch (tipo_mensaje)
                         {
                             case "C":
