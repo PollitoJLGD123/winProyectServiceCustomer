@@ -78,7 +78,7 @@ namespace winProyectService
         {
             try
             {
-                ipDireccion = IPAddress.Parse(ip);
+                ipDireccion = IPAddress.Parse("192.168.0.107");
                 ipInfoHost = Dns.GetHostEntry(ipDireccion);
                 PuntoRemoto = new IPEndPoint(ipDireccion, puerto);
 
@@ -557,7 +557,7 @@ namespace winProyectService
 
                         enviarInformacion(recipientId);
 
-                        Thread enviandoArch = new Thread( () =>enviarArchivo(recipientId, contador));
+                        enviandoArch = new Thread( () =>enviarArchivo(recipientId, contador));
                         enviandoArch.Start();
                     }
                     else
@@ -620,12 +620,10 @@ namespace winProyectService
                     Array.Copy(cabeza, 0, tramaEnviar, 0, 17);
                     Array.Copy(archivosEnviar[conta].bytes, i, tramaEnviar, 17, size);
 
-                    SocketCliente.Send(tramaEnviar);
-
                     int intentos = 0;
                     const int maxIntentos = 5;
 
-                    while (intentos < maxIntentos)
+                    do
                     {
                         ackEvent.Reset(); // Resetea el evento antes de enviar
                         SocketCliente.Send(tramaEnviar);
@@ -642,13 +640,15 @@ namespace winProyectService
                         }
 
                         intentos++;
-                    }
+                    } while (intentos < maxIntentos);
 
                     if (intentos == maxIntentos)
                     {
                         Console.WriteLine($"Error: No se recibió ACK después de {maxIntentos} intentos.");
                         break;
                     }
+
+                    contador++;
 
                     if (i + size == tamaño_imagen)
                     {

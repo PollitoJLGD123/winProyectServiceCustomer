@@ -197,11 +197,11 @@ namespace winProyectService
                         {
                             byte[] nombreEnvia = Encoding.UTF8.GetBytes(clientId);
 
-                            Array.Copy(nombreEnvia, 0, buffer, 2, 4); //A:jah1:jdhdbhdbh
-                            socket_recibe.Send(buffer);
-
                             byte[] ack = Enumerable.Repeat((byte)'K', 1024).ToArray();
                             cliente_socket.Send(ack);
+
+                            Array.Copy(nombreEnvia, 0, buffer, 2, 4); //A:jah1:jdhdbhdbh
+                            socket_recibe.Send(buffer);
                         }
                         else
                         {
