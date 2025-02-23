@@ -47,7 +47,7 @@ namespace winProyectService
 
         private Dictionary<int, bool> disponibles = new Dictionary<int, bool>();
 
-        private ManualResetEvent ackEvent = new ManualResetEvent(false);
+        private ManualResetEvent ackEvent;
 
         public frmCliente()
         {
@@ -557,6 +557,9 @@ namespace winProyectService
 
                         enviarInformacion(recipientId);
 
+
+                        ackEvent = new ManualResetEvent(false);
+
                         enviandoArch = new Thread( () =>enviarArchivo(recipientId, contador));
                         enviandoArch.Start();
                     }
@@ -648,34 +651,10 @@ namespace winProyectService
                         break;
                     }
 
-                    contador++;
+                    Console.WriteLine("Trama que se envia al cliente del archivo(5 primeros): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(tramaEnviar, 0, 20));
+                    Console.WriteLine("Trama que se envia al cliente del archivo(5 ultimos): " + contador + " Mensaje:" +  ASCIIEncoding.UTF8.GetString(tramaEnviar, 1004, 20));
 
-                    if (i + size == tamaño_imagen)
-                    {
-                        Console.WriteLine("Trama ultima que se enviaaaa: " + ASCIIEncoding.UTF8.GetString(tramaEnviar));
-                    }
-                    else
-                    {
-                        Console.WriteLine("Trama que se envia al cliente del archivo(5 primeros): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(tramaEnviar, 0, 20));
-                        Console.WriteLine("Trama que se envia al cliente del archivo(5 ultimos): " + contador + " Mensaje:" +  ASCIIEncoding.UTF8.GetString(tramaEnviar, 1004, 20));
-                    }
-
-                    if (i == 0)
-                    {
-                        if (tamaño_imagen < 1007)
-                        {
-                            UpdateEnvio(100, archivosEnviar[conta].Avance, tamaño_imagen, conta);
-                        }
-                        else
-                        {
-                            UpdateEnvio(0, 0, tamaño_imagen, conta);
-                        }
-
-                    }
-                    else
-                    {
-                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[conta].Avance, tamaño_imagen, conta);
-                    }
+                    UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[conta].Avance, tamaño_imagen, conta);
                     contador++;
                 }
             }
