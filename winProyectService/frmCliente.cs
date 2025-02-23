@@ -282,10 +282,6 @@ namespace winProyectService
         {
             try
             {
-                
-                Console.WriteLine("Trama que se recibe aca en el cliente (5 primeros): " + ASCIIEncoding.UTF8.GetString(bufferRecibir,0,10));
-                Console.WriteLine("Trama que se recibe aca en el cliente (5 ultimos): " + ASCIIEncoding.UTF8.GetString(bufferRecibir, 1014, 10));
-
 
                 int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 1));
 
@@ -300,6 +296,17 @@ namespace winProyectService
                 {
                     archivosRecibir[orden].EscribiendoArchivo.Write(bufferRecibir, 9, bytesAEscribir);
                     archivosRecibir[orden].Avance += bytesAEscribir;
+
+                    if(bytesAEscribir > 1015)
+                    {
+                        Console.WriteLine("Trama que se recibe aca en el cliente (5 primeros): " + ASCIIEncoding.UTF8.GetString(bufferRecibir, 0, 10));
+                        Console.WriteLine("Trama que se recibe aca en el cliente (5 ultimos): " + ASCIIEncoding.UTF8.GetString(bufferRecibir, 1014, 10));
+                    }
+                    else
+                    {
+                        Console.WriteLine("Trama ultimaaaa que se recibe: " + ASCIIEncoding.UTF8.GetString(bufferRecibir));                   
+                    }
+
                 }
 
                 UpdateRecibir((archivosRecibir[orden].Avance / (float)archivosRecibir[orden].bytes.Length) * 100, archivosRecibir[orden].Avance, archivosRecibir[orden].bytes.Length,orden);
@@ -592,7 +599,7 @@ namespace winProyectService
 
                 int cantidad_exacta = 1015 * ((int)(tamaño_imagen / 1015));
 
-                for (int i = 0; i < tamaño_imagen; i += 1015)
+                for (int i = 0; i < tamaño_imagen; i += 1015) // 2050 i = 0 i = 1015 i = 2030
                 {
                     int size = Math.Min(1015, tamaño_imagen - i);
                     byte[] tramaEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
@@ -604,24 +611,32 @@ namespace winProyectService
 
                     SocketCliente.Send(tramaEnviar);
 
+                    if(i + size == tamaño_imagen)
+                    {
+                        Console.WriteLine("Trama ultima que se enviaaaa: " + ASCIIEncoding.UTF8.GetString(tramaEnviar));
+                    }
+                    else
+                    {
+                        Console.WriteLine("Trama que se envia al cliente del archivo(5 primeros): " + ASCIIEncoding.UTF8.GetString(tramaEnviar, 0, 10));
+                        Console.WriteLine("Trama que se envia al cliente del archivo(5 ultimos): " + ASCIIEncoding.UTF8.GetString(tramaEnviar, 1014, 10));
+                    }
+
                     if (i == 0)
                     {
                         if (tamaño_imagen < 1015)
                         {
-                            UpdateEnvio(100, archivosEnviar[conta].Avance, tamaño_imagen,conta);
+                            UpdateEnvio(100, archivosEnviar[conta].Avance, tamaño_imagen, conta);
                         }
                         else
                         {
-                            UpdateEnvio(0, 0, tamaño_imagen,conta);
+                            UpdateEnvio(0, 0, tamaño_imagen, conta);
                         }
 
                     }
                     else
                     {
-                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[conta].Avance, tamaño_imagen,conta);
+                        UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[conta].Avance, tamaño_imagen, conta);
                     }
-                    Console.WriteLine("Trama que se envia al cliente del archivo(5 primeros): " + ASCIIEncoding.UTF8.GetString(tramaEnviar,0,10));
-                    Console.WriteLine("Trama que se envia al cliente del archivo(5 ultimos): " + ASCIIEncoding.UTF8.GetString(tramaEnviar, 1014, 10));
 
                 }
             }
