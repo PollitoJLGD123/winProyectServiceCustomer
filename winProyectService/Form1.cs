@@ -24,11 +24,13 @@ namespace winProyectService
 
         bool isListening = false;
 
-        public Socket SocketEscucha;
-
         public Thread hiloEscuchar;
 
-        private ConcurrentDictionary<string, Socket> listaClientes = new ConcurrentDictionary<string, Socket>();
+        private ConcurrentDictionary<string, TcpClient> listaClientes = new ConcurrentDictionary<string, TcpClient>();
+
+
+        private TcpListener servidor;
+        private Thread hiloServidor;
 
         public Form1()
         {
@@ -77,14 +79,9 @@ namespace winProyectService
             {
 
                 ipDireccion = IPAddress.Parse(ip);
-                PuntoFinal = new IPEndPoint(ipDireccion, puerto);
+                servidor = new TcpListener(ipDireccion, puerto);
 
-                SocketEscucha = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-                SocketEscucha.Bind(PuntoFinal);
-
-                SocketEscucha.Listen(5);
-
+                servidor.Start();
 
                 isListening = true;
                 lblEstado.Text = "ON";
@@ -98,6 +95,7 @@ namespace winProyectService
 
 
                 hiloEscuchar = new Thread(new ThreadStart(Escuchar));
+                hiloEscuchar.IsBackground = true;
                 hiloEscuchar.Start();
             }
             catch (Exception ex)
@@ -111,7 +109,7 @@ namespace winProyectService
         {
             isListening = false;
 
-            SocketEscucha?.Close(); 
+            servidor?.Stop();
 
             hiloEscuchar?.Join();
 
@@ -142,13 +140,13 @@ namespace winProyectService
                 try
                 {
 
-                    Socket socketHijo = SocketEscucha.Accept();
+                    TcpClient tc_hijo = servidor.AcceptTcpClient();
 
-                    Console.WriteLine("Cliente conectado" + socketHijo.ToString());
+                    Console.WriteLine("Cliente conectado" + tc_hijo.ToString());
 
-                    if (socketHijo != null) { 
+                    if (tc_hijo != null) { 
                         Thread clientThread = new Thread(envioMensaje);
-                        clientThread.Start(socketHijo);
+                        clientThread.Start(tc_hijo);
                     }
 
                 }
@@ -162,15 +160,17 @@ namespace winProyectService
         }
 
 
-        private void envioMensaje(object socketHijo)
+        private void envioMensaje(object tcp_hijo)
         {
-            Socket cliente_socket = (Socket)socketHijo;
+            TcpClient cliente_tcp = (TcpClient)tcp_hijo;
 
             string clientId = Guid.NewGuid().ToString().Substring(0,4);
 
-            enviarID(clientId, cliente_socket);
+            NetworkStream stream = cliente_tcp.GetStream();
 
-            listaClientes.TryAdd(clientId, cliente_socket);
+            enviarID(clientId, stream);
+
+            listaClientes.TryAdd(clientId, cliente_tcp);
 
             reenviarClientes(true, Color.Green);
 
@@ -180,7 +180,7 @@ namespace winProyectService
             {
                 while (true)
                 {
-                    int bytesRead = cliente_socket.Receive(buffer); // solo devuelve cuando se desconecta el cliente
+                    int bytesRead = stream.Read(buffer,0,1024); // solo devuelve cuando se desconecta el cliente
 
                     if (bytesRead == 0) break; //cliente se conecta y no envia nada
 
@@ -190,17 +190,15 @@ namespace winProyectService
 
                         string tipo = Encoding.ASCII.GetString(buffer, 0, 1);
 
-                        if (listaClientes.TryGetValue(id_recibe, out Socket socket_recibe))
+                        if (listaClientes.TryGetValue(id_recibe, out TcpClient cliente_recibe))
                         {
                             byte[] nombreEnvia = Encoding.UTF8.GetBytes(clientId);
 
-                            int contador = Convert.ToInt32(Encoding.UTF8.GetString(buffer, 7, 7));
-
-                            Console.WriteLine("Trama que se recibe servidor (5 primeros): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(buffer, 0, 10));
-                            Console.WriteLine("Trama que se recibe servidor (5 ultimos): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(buffer, 1014, 10));
-
+                            
                             Array.Copy(nombreEnvia, 0, buffer, 2, 4); //A:jah1:jdhdbhdbh
-                            socket_recibe.Send(buffer);
+
+                            NetworkStream stream_recibe = cliente_recibe.GetStream();
+                            stream_recibe.Write(buffer, 0, 1024);
                         }
                         else
                         {
@@ -218,23 +216,23 @@ namespace winProyectService
             {
                 listaClientes.TryRemove(clientId, out _);
                 
-                cliente_socket.Close();
+                cliente_tcp.Close();
 
                 Console.WriteLine("Se elimino al cliente");
                 reenviarClientes(false, Color.Red);
             }
         }
 
-        private void enviarID(string id, Socket cliente_socket)
+        private void enviarID(string id, NetworkStream stream)
         {
             byte[] buffer = Enumerable.Repeat((byte)'@', 1024).ToArray();
             byte[] idBuffer = Encoding.UTF8.GetBytes("N:" + id);
 
             Array.Copy(idBuffer, 0, buffer, 0, idBuffer.Length);
-            cliente_socket.Send(buffer);
+            stream.Write(buffer,0,1024);
         }
 
-        private void enviarClientes(Socket cliente_socket)
+        private void enviarClientes(NetworkStream stream)
         {
             byte[] buffer = Enumerable.Repeat((byte)'@', 1024).ToArray();
             string clientes_enlazados = "C:" + string.Join(",", listaClientes.Keys);
@@ -246,7 +244,7 @@ namespace winProyectService
 
             Array.Copy(listBuffer, 0, buffer, 0, listBuffer.Length);
 
-            cliente_socket.Send(buffer);
+            stream.Write(buffer, 0, 1024);
         }
 
         private void reenviarClientes(bool estado, Color color)
@@ -257,7 +255,7 @@ namespace winProyectService
                 string idCliente = kvp.Key;
                 var client = kvp.Value;
 
-                enviarClientes(client);
+                enviarClientes(client.GetStream());
                 UpdateChecker(i, true, idCliente, Color.Green);
                 i++;
             }
