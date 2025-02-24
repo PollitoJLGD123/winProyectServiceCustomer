@@ -8,19 +8,15 @@ namespace winTwoPlays
 {
     public class classArchivo
     {
-        public classArchivo(string Nombre, byte[] bytes, int Avance,int Orden)
+        public classArchivo(string Nombre, byte[] bytes, int Avance)
         {
             this.bytes = bytes;
             this.Avance = Avance;
             this.Nombre = Nombre;
-            //this.Id = id;
-            this.Orden = Orden;
         }
         public string Nombre { get; set; }
         public byte[] bytes { get; set; }
         public int Avance { get; set; }
-
-        public int Orden { get; set; }
 
         public FileStream FlujoArchivoRecibir { get; set; }
         public BinaryWriter EscribiendoArchivo { get; set; }

@@ -34,59 +34,31 @@ namespace winProyectService
 
         private Dictionary<string, string> clientes_conectados = new Dictionary<string, string>();
 
-        classArchivo[] archivosRecibir;
+        private classArchivo archivoEnviar;
+        private classArchivo archivoRecibir;
 
-        classArchivo[] archivosEnviar;
-
-        int contador = 0;
         int number = 0;
 
         int aea = 0;
 
         byte[] bufferRecibir;
 
-        private Dictionary<int, bool> disponibles = new Dictionary<int, bool>();
-
-        private ManualResetEvent ackEvent;
-
         public frmCliente()
         {
             InitializeComponent();
-            disponibles = new Dictionary<int, bool>()
-            {
-                { 0, true },
-                { 1, true },
-                { 2, true },
-                { 3, true },
-                { 4, true },
-            };
-        }
-
-        private int retornarVacio(Dictionary<int, Boolean> diccionario)
-        {
-            foreach (var i in diccionario.OrderBy(k => k.Key))
-            {
-                if (i.Value)
-                {
-                    return i.Key;
-                }
-            }
-            return -1;
         }
 
         public void Conectar(int puerto, string ip)
         {
             try
             {
-                ipDireccion = IPAddress.Parse("192.168.0.107");
+                ipDireccion = IPAddress.Parse(ip);
                 ipInfoHost = Dns.GetHostEntry(ipDireccion);
                 PuntoRemoto = new IPEndPoint(ipDireccion, puerto);
 
                 SocketCliente = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                 SocketCliente.Connect(PuntoRemoto);
-
-                archivosEnviar = new classArchivo[5];
 
                 hiloRecibir = new Thread(recibirMensajes);
                 hiloRecibir.Start();
@@ -160,7 +132,6 @@ namespace winProyectService
             try
             {
                 bufferRecibir = new byte[1024];
-                archivosRecibir = new classArchivo[5];
                 while (SocketCliente.Connected)
                 {
                     int bytesRead = SocketCliente.Receive(bufferRecibir); 
@@ -187,13 +158,6 @@ namespace winProyectService
                             case "A":
                                 procesarArchivo();
                                 break;
-                            case "R":
-                                int indice = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 1));
-                                UpdateDiccionario(indice);
-                                break;
-                            case "K":
-                                ackEvent.Set();
-                                break;
                             default:
                                 MessageBox.Show("Mensaje no reconocido");
                                 break;
@@ -216,17 +180,6 @@ namespace winProyectService
             {
                 MessageBox.Show($"Error inesperado: {ex.Message}");
             }
-        }
-
-        private void UpdateDiccionario(int indice)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action<int>(UpdateDiccionario),indice);
-                return;
-            }
-            disponibles[indice] = true;
-            Console.WriteLine("Se desocupo el indice: " + indice);
         }
 
         private void procesarClientes(int cantidad)
@@ -268,8 +221,6 @@ namespace winProyectService
 
             string nombre = Encoding.UTF8.GetString(bufferRecibir, 22, size_nombre);
 
-            int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 23 + size_nombre, 1));
-
             string ruta_temp = $"E:/Probando/Recibir/{nombre}";
 
             if (File.Exists(ruta_temp))
@@ -277,36 +228,32 @@ namespace winProyectService
                 File.Delete(ruta_temp); // Evitamos problemas de sobreescritura 
             }
 
-            archivosRecibir[orden] = new classArchivo(ruta_temp, new byte[size_archivo], 0, orden);
+            archivoRecibir = new classArchivo(ruta_temp, new byte[size_archivo], 0);
 
-            archivosRecibir[orden].iniciarFlujo();
+            archivoRecibir.iniciarFlujo();
         }
 
         private void procesarArchivo()
         {
             try
             {
-                //A:aea1:1:0000222:
+                //A:aea1:0000222:
 
-                int orden = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 1));
+                int contador = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 7, 7));
 
-                int contador = Convert.ToInt32(Encoding.UTF8.GetString(bufferRecibir, 9, 7));
-
-                int bytesRestantes = archivosRecibir[orden].bytes.Length - archivosRecibir[orden].Avance;
-                int tamañoPaquete = bufferRecibir.Length - 17;
+                int bytesRestantes = archivoRecibir.bytes.Length - archivoRecibir.Avance;
+                int tamañoPaquete = bufferRecibir.Length - 15;
 
                 string sendId = Encoding.UTF8.GetString(bufferRecibir, 2, 4);
 
                 int bytesAEscribir = Math.Min(bytesRestantes, tamañoPaquete);
 
-//Console.WriteLine("Numero de trama: " + contador);
-
                 if (bytesAEscribir > 0)  
                 {
-                    archivosRecibir[orden].EscribiendoArchivo.Write(bufferRecibir, 17, bytesAEscribir);
-                    archivosRecibir[orden].Avance += bytesAEscribir;
+                    archivoRecibir.EscribiendoArchivo.Write(bufferRecibir, 15, bytesAEscribir);
+                    archivoRecibir.Avance += bytesAEscribir;
 
-                    if(bytesAEscribir >= 1007) // 
+                    if(bytesAEscribir >= 1009) // 
                     {
                         Console.WriteLine("Trama que se recibe aca en el cliente (5 primeros): " + contador + " Mensaje:" +   ASCIIEncoding.UTF8.GetString(bufferRecibir, 0, 20));
                         Console.WriteLine("Trama que se recibe aca en el cliente (5 ultimos): " + contador + " Mensaje:" +  ASCIIEncoding.UTF8.GetString(bufferRecibir, 1004, 20));
@@ -318,23 +265,15 @@ namespace winProyectService
 
                 }
 
-                UpdateRecibir((archivosRecibir[orden].Avance / (float)archivosRecibir[orden].bytes.Length) * 100, archivosRecibir[orden].Avance, archivosRecibir[orden].bytes.Length,orden);
+                UpdateRecibir((archivoRecibir.Avance / (float)archivoRecibir.bytes.Length) * 100, archivoRecibir.Avance, archivoRecibir.bytes.Length);
 
-                if (archivosRecibir[orden].Avance >= archivosRecibir[orden].bytes.Length)
+                if (archivoRecibir.Avance >= archivoRecibir.bytes.Length)
                 {
-                    archivosRecibir[orden].EscribiendoArchivo.Flush();
-                    archivosRecibir[orden].EscribiendoArchivo.Close();
-                    archivosRecibir[orden].FlujoArchivoRecibir.Close();
+                    archivoRecibir.EscribiendoArchivo.Flush();
+                    archivoRecibir.EscribiendoArchivo.Close();
+                    archivoRecibir.FlujoArchivoRecibir.Close();
 
                     UpdateUI($"Cliente {Encoding.UTF8.GetString(bufferRecibir, 2, 4)} envió un archivo exitosamente.");
-
-                    byte[] tramaSeEnvio = Encoding.UTF8.GetBytes($"R:{sendId}:{orden}");
-
-                    byte[] tramaEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
-
-                    Array.Copy(tramaSeEnvio, 0, tramaEnviar, 0, tramaSeEnvio.Length);
-
-                    SocketCliente.Send(tramaEnviar);
                 }
             }
             catch (Exception ex)
@@ -343,82 +282,22 @@ namespace winProyectService
             }
         }
 
-        private void UpdateRecibir(float cantidad, float bytes_actuales, float total,int orden)
+        private void UpdateRecibir(float cantidad, float bytes_actuales, float total)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<float, float, float,int>(UpdateRecibir), cantidad, bytes_actuales, total, orden);
+                Invoke(new Action<float, float, float>(UpdateRecibir), cantidad, bytes_actuales, total);
                 return;
             }
-
-            if (orden == 0)
+            barraRecibir1.Value = (int)Math.Ceiling(cantidad);
+            lblBytesConstruccion1.Text = $"Bytes de Construccion: {bytes_actuales.ToString()}/{total.ToString()}";
+            if (bytes_actuales == total)
             {
-                barraRecibir1.Value = (int)Math.Ceiling(cantidad);
-                lblBytesConstruccion1.Text = $"Bytes de Construccion: {bytes_actuales.ToString()}/{total.ToString()}";
-                if (bytes_actuales == total)
-                {
-                    checkRecibir1.Checked = true;
-                }
-                else
-                {
-                    checkRecibir1.Checked = false;
-                }
+                checkRecibir1.Checked = true;
             }
-            if (orden == 1)
+            else
             {
-                barraRecibir2.Value = (int)Math.Ceiling(cantidad);
-                lblBytesConstruccion2.Text = $"Bytes de Construccion: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkRecibir2.Checked = true;
-                }
-                else
-                {
-                    checkRecibir2.Checked = false;
-                }
-            }
-            if (orden == 2)
-            {
-                barraRecibir3.Value = (int)Math.Ceiling(cantidad);
-                lblBytesConstruccion3.Text = $"Bytes de Construccion: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkRecibir3.Checked = true;
-                }
-                else
-                {
-                    checkRecibir3.Checked = false;
-                }
-            }
-            if (orden == 3)
-            {
-                barraRecibir4.Value = (int)Math.Ceiling(cantidad);
-                lblBytesConstruccion4.Text = $"Bytes de Construccion: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkRecibir4.Checked = true;
-                }
-                else
-                {
-                    checkRecibir4.Checked = false;
-                }
-            }
-            if (orden == 4)
-            {
-                barraRecibir5.Value = (int)Math.Ceiling(cantidad);
-                lblBytesConstruccion5.Text = $"Bytes de Construccion: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkRecibir5.Checked = true;
-                }
-                else
-                {
-                    checkRecibir5.Checked = false;
-                }
+                checkRecibir1.Checked = false;
             }
         }
 
@@ -542,32 +421,17 @@ namespace winProyectService
                 }
                 else
                 {
-                    contador = retornarVacio(disponibles);
+                    string rutita = txtRuta.Text.Trim();
 
-                    if(contador != -1)
-                    {
-                        disponibles[contador] = false; //ocupado
+                    string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
+                    byte[] bytesImagen = File.ReadAllBytes(rutita);
 
-                        string rutita = txtRuta.Text.Trim();
+                    archivoEnviar = new classArchivo(rutita, bytesImagen, 0);
 
-                        string recipientId = ((KeyValuePair<string, string>)comboClientes.SelectedItem).Key;
-                        byte[] bytesImagen = File.ReadAllBytes(rutita);
+                    enviarInformacion(recipientId);
 
-                        archivosEnviar[contador] = new classArchivo(rutita, bytesImagen, 0, contador);
-
-                        enviarInformacion(recipientId);
-
-
-                        ackEvent = new ManualResetEvent(false);
-
-                        enviandoArch = new Thread( () =>enviarArchivo(recipientId, contador));
-                        enviandoArch.Start();
-                    }
-                    else
-                    {
-                        MessageBox.Show("No hay espacio para enviar archivos");
-                    }
-
+                    enviandoArch = new Thread( () =>enviarArchivo(recipientId));
+                    enviandoArch.Start();
                 }
             }
             catch (Exception ex)
@@ -580,9 +444,9 @@ namespace winProyectService
         {
             byte[] bufferInformacionEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
 
-            string size_archivo = archivosEnviar[contador].bytes.Length.ToString("D10");
+            string size_archivo = archivoEnviar.bytes.Length.ToString("D10");
 
-            string nombre = Path.GetFileName(archivosEnviar[contador].Nombre);
+            string nombre = Path.GetFileName(archivoEnviar.Nombre);
 
             string name_real = nombre.Split('.')[0];
             string extension = nombre.Split('.')[1];
@@ -591,7 +455,7 @@ namespace winProyectService
 
             string size_nombre = nombre.Length.ToString("D3");
 
-            string info_total = $"I:{recipientId}:{size_archivo}:{size_nombre}:{nombre}:{contador}";
+            string info_total = $"I:{recipientId}:{size_archivo}:{size_nombre}:{nombre}";
 
             byte[] bufferInfo = Encoding.UTF8.GetBytes(info_total);
 
@@ -602,59 +466,33 @@ namespace winProyectService
             SocketCliente.Send(bufferInformacionEnviar);
         }
 
-        private void enviarArchivo(string recipientId,int conta)
+        private void enviarArchivo(string recipientId)
         {
             try
             {
                 int contador = 0;
 
-                int tamaño_imagen = archivosEnviar[conta].bytes.Length;
+                int tamaño_imagen = archivoEnviar.bytes.Length;
 
-                int cantidad_exacta = 1007 * ((int)(tamaño_imagen / 1007));
+                int cantidad_exacta = 1009 * ((int)(tamaño_imagen / 1009));
 
-                for (int i = 0; i < tamaño_imagen; i += 1007)
+                for (int i = 0; i < tamaño_imagen; i += 1009)
                 {
-                    byte[] cabeza = Encoding.UTF8.GetBytes($"A:{recipientId}:{conta}:{contador.ToString("D7")}:");
-                    int size = Math.Min(1007, tamaño_imagen - i);
+                    byte[] cabeza = Encoding.UTF8.GetBytes($"A:{recipientId}:{contador.ToString("D7")}:");
+                    int size = Math.Min(1009, tamaño_imagen - i);
                     byte[] tramaEnviar = Enumerable.Repeat((byte)'@', 1024).ToArray();
 
-                    archivosEnviar[conta].Avance += size;
+                    archivoEnviar.Avance += size;
 
-                    Array.Copy(cabeza, 0, tramaEnviar, 0, 17);
-                    Array.Copy(archivosEnviar[conta].bytes, i, tramaEnviar, 17, size);
-
-                    int intentos = 0;
-                    const int maxIntentos = 5;
-
-                    do
-                    {
-                        ackEvent.Reset(); // Resetea el evento antes de enviar
-                        SocketCliente.Send(tramaEnviar);
-                        Console.WriteLine($"Enviando trama {contador}, intento {intentos + 1}");
-
-                        if (ackEvent.WaitOne(2000)) // Espera hasta 2 segundos por el ACK
-                        {
-                            Console.WriteLine("ACK recibido, continuando...");
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine("ACK no recibido, reintentando...");
-                        }
-
-                        intentos++;
-                    } while (intentos < maxIntentos);
-
-                    if (intentos == maxIntentos)
-                    {
-                        Console.WriteLine($"Error: No se recibió ACK después de {maxIntentos} intentos.");
-                        break;
-                    }
+                    Array.Copy(cabeza, 0, tramaEnviar, 0, 15);
+                    Array.Copy(archivoEnviar.bytes, i, tramaEnviar, 15, size);
 
                     Console.WriteLine("Trama que se envia al cliente del archivo(5 primeros): " + contador + " Mensaje:" + ASCIIEncoding.UTF8.GetString(tramaEnviar, 0, 20));
                     Console.WriteLine("Trama que se envia al cliente del archivo(5 ultimos): " + contador + " Mensaje:" +  ASCIIEncoding.UTF8.GetString(tramaEnviar, 1004, 20));
 
-                    UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivosEnviar[conta].Avance, tamaño_imagen, conta);
+                    SocketCliente.Send(tramaEnviar);
+
+                    UpdateEnvio(((float)i / (float)cantidad_exacta) * 100, archivoEnviar.Avance, tamaño_imagen);
                     contador++;
                 }
             }
@@ -664,85 +502,25 @@ namespace winProyectService
             }
         }
 
-        private void UpdateEnvio(float cantidad,float bytes_actuales, float total, int orden)
+        private void UpdateEnvio(float cantidad,float bytes_actuales, float total)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<float,float,float,int>(UpdateEnvio),cantidad,bytes_actuales,total,orden);
+                Invoke(new Action<float,float,float>(UpdateEnvio),cantidad,bytes_actuales,total);
                 return;
             }
-            if (orden == 0)
+
+            barraProgreso1.Value = (int)Math.Ceiling(cantidad);
+            lblBytesEnvio1.Text = $"Bytes Enviados: {bytes_actuales.ToString()}/{total.ToString()}";
+
+            if (bytes_actuales == total)
             {
-                barraProgreso1.Value = (int)Math.Ceiling(cantidad);
-                lblBytesEnvio1.Text = $"Bytes Enviados: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkEnviado1.Checked = true;
-                }
-                else
-                {
-                    checkEnviado1.Checked = false;
-                }
+                checkEnviado1.Checked = true;
             }
-            if (orden == 1)
+            else
             {
-                barraProgreso2.Value = (int)Math.Ceiling(cantidad);
-                lblBytesEnvio2.Text = $"Bytes Enviados: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkEnviado2.Checked = true;
-                }
-                else
-                {
-                    checkEnviado2.Checked = false;
-                }
+                checkEnviado1.Checked = false;
             }
-            if (orden == 2)
-            {
-                barraProgreso3.Value = (int)Math.Ceiling(cantidad);
-                lblBytesEnvio3.Text = $"Bytes Enviados: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkEnviado3.Checked = true;
-                }
-                else
-                {
-                    checkEnviado3.Checked = false;
-                }
-            }
-            if (orden == 3)
-            {
-                barraProgreso4.Value = (int)Math.Ceiling(cantidad);
-                lblBytesEnvio4.Text = $"Bytes Enviados: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkEnviado4.Checked = true;
-                }
-                else
-                {
-                    checkEnviado4.Checked = false;
-                }
-            }
-            if (orden == 4)
-            {
-                barraProgreso5.Value = (int)Math.Ceiling(cantidad);
-                lblBytesEnvio5.Text = $"Bytes Enviados: {bytes_actuales.ToString()}/{total.ToString()}";
-
-                if (bytes_actuales == total)
-                {
-                    checkEnviado5.Checked = true;
-                }
-
-                else
-                {
-                    checkEnviado5.Checked = false;
-                }
-            }
-
         }
 
         private void progressBar2_Click(object sender, EventArgs e)
