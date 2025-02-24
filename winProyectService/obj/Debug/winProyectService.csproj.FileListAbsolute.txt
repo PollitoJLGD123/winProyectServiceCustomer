@@ -37,3 +37,6 @@ D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustom
 D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProye.71109C68.Up2Date
 D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.exe
 D:\SISTEMAS\CICLO VII\REDES Y COMUNICACIONES 1\S06\Tarea\winProyectServiceCustomer\winProyectService\obj\Debug\winProyectService.pdb
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\bin\Debug\System.ValueTuple.dll
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\bin\Debug\System.ValueTuple.xml
+E:\CURSOS\C#\Redes y Comunicaciones\winProyectService\winProyectService\obj\Debug\winProye.71109C68.Up2Date
